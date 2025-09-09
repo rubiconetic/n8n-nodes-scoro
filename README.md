@@ -59,7 +59,7 @@ The node authenticates by sending these credentials in the body of a POST reques
 - Tested against n8n versions: `1.0.0`
 - Node.js version: `18` or higher
 
-<!-- ## Usage --> 💻
+<!-- ## Usage 💻 -->
 
 <!-- This section is optional. It is recommended for developers to add an example of a workflow that uses the node to showcase its functionalities. -->
 
