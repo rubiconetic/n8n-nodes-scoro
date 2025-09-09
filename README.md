@@ -1,49 +1,73 @@
-# n8n-nodes-scoro
+# n8n-nodes-scoro 🚀
 
-This is an n8n community node. It lets you use _app/service name_ in your n8n workflows.
+This is an n8n community node. It lets you use **[Scoro](https://www.scoro.com/)** in your n8n workflows.
 
-Scoro is an end-to-end work management software designed for service-based businesses like consultancies, agencies, and IT firms. The cloud-based platform integrates projects, resources, sales, and finances into a single system, eliminating the need to switch between different applications.
+> Scoro is an end-to-end work management software designed for service-based businesses like consultancies, agencies, and IT firms. The cloud-based platform integrates projects, resources, sales, and finances into a single system, eliminating the need to switch between different applications.
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
-[Installation](#installation)
-[Operations](#operations)
-[Credentials](#credentials)
-[Compatibility](#compatibility)
-[Usage](#usage)
-[Resources](#resources)
-[Version history](#version-history)
+[Installation](#installation-💾)
+[Operations](#operations-✨)
+[Credentials](#credentials-🔑)
+[Compatibility](#compatibility-📦)
+[Resources](#resources-📚)
+[Version history](#version-history-📜)
 
-## Installation
+<!-- [Usage](#usage-💻) -->
+
+## Installation 💾
 
 Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
 
-## Operations
+## Operations ✨
 
-- Get
-- Get Many
-- Create Users
-- Get Many Companies
+The **Scoro** node supports a variety of operations across different resources:
 
-## Credentials
+| Resource           | Create | Get | Get Many | Update | Delete | Set Done |
+| :----------------- | :----: | :-: | :------: | :----: | :----: | :------: |
+| **Calendar**       |   ✅   | ✅  |    ✅    |   ✅   |   ✅   |          |
+| **Client Profile** |   ✅   | ✅  |    ✅    |   ✅   |   ✅   |          |
+| **Company**        |   ✅   | ✅  |    ✅    |   ✅   |   ✅   |          |
+| **Invoice**        |   ✅   | ✅  |    ✅    |   ✅   |   ✅   |          |
+| **Project**        |   ✅   | ✅  |    ✅    |   ✅   |   ✅   |          |
+| **Role**           |        | ✅  |    ✅    |        |        |          |
+| **Status**         |        |     |    ✅    |        |        |          |
+| **Task**           |   ✅   | ✅  |    ✅    |   ✅   |   ✅   |          |
+| **Time Entry**     |   ✅   | ✅  |    ✅    |   ✅   |   ✅   |    ✅    |
+| **Trigger**        |   ✅   | ✅  |    ✅    |   ✅   |   ✅   |          |
+| **User**           |        | ✅  |    ✅    |        |        |          |
 
-_If users need to authenticate with the app/service, provide details here. You should include prerequisites (such as signing up with the service), available authentication methods, and how to set them up._
+## Credentials 🔑
 
-## Compatibility
+To use the Scoro node, you need to:
 
-_State the minimum n8n version, as well as which versions you test against. You can also include any known version incompatibility issues._
+1. Sign up for a scoro account at [https://www.scoro.com/](https://www.scoro.com/).
+2. Get your Company Account ID, API key, and Base URL from your Scoro account settings.
+3. In n8n, add the following to the node's credentials:
 
-## Usage
+- **Company Account ID**: Your Scoro company account ID, found in your Scoro URL (e.g., `your-company.scoro.com`).
+- **API Key**: The API key for your Scoro account.
+- **Base URL**: The URL for the Scoro API.
 
-_This is an optional section. Use it to help users with any difficult or confusing aspects of the node._
+The node authenticates by sending these credentials in the body of a POST request.
 
-_By the time users are looking for community nodes, they probably already know n8n basics. But if you expect new users, you can link to the [Try it out](https://docs.n8n.io/try-it-out/) documentation to help them get started._
+> ⚠️ Do not share your API key or other sensitive information with anyone who does not have permission to access it. Keep them secure! 🔒
 
-## Resources
+## Compatibility 📦
+
+- Minimum n8n version: `1.0.0`
+- Tested against n8n versions: `1.0.0`
+- Node.js version: `18` or higher
+
+<!-- ## Usage --> 💻
+
+<!-- This section is optional. It is recommended for developers to add an example of a workflow that uses the node to showcase its functionalities. -->
+
+## Resources 📚
 
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
-- _Link to app/service documentation._
+- [Official Scoro API documentation](https://api.scoro.com/api/v2)
 
-## Version history
+## Version history 📜
 
-_This is another optional section. If your node has multiple versions, include a short description of available versions and what changed, as well as any compatibility impact._
+- **Version 0.1.0**: Initial release of the community node.
