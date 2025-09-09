@@ -2,7 +2,7 @@ import type { INodeProperties } from 'n8n-workflow';
 
 // Reusable Limit Property
 export const limitProperty: INodeProperties = {
-    displayName: 'Limit',
+    displayName: 'Page Limit', // Changed from "Limit" to "Page Limit"
     name: 'limit',
     type: 'number',
     displayOptions: {
@@ -14,13 +14,7 @@ export const limitProperty: INodeProperties = {
         minValue: 1,
     },
     default: 50,
-    routing: {
-        send: {
-            type: 'body',
-            property: 'request.limit',
-        },
-    },
-    description: 'Max number of results to return',
+    description: 'Max number of results to return'
 };
 
 // Reusable Return All Property
@@ -48,7 +42,7 @@ export const includeDeletedProperty: INodeProperties = {
     },
 };
 
-// Reusable Filter Property (with your working tweak)
+// Reusable Filter Property
 export const filterProperty: INodeProperties = {
     displayName: 'Filter',
     name: 'filter',
@@ -60,12 +54,9 @@ export const filterProperty: INodeProperties = {
         send: {
             type: 'body',
             property: 'filter',
-            value: '={{JSON.parse($value)}}',
+            value: '={{$value !== undefined && $value !== "" ? JSON.parse($value) : undefined}}',
         },
     },
-    options: [
-        includeDeletedProperty
-    ]
 };
 
 
@@ -79,7 +70,7 @@ export const requestProperty: INodeProperties = {
         send: {
             type: 'body',
             property: 'request',
-            value: '={{JSON.parse($value)}}',
+            value: '={{$value !== undefined && $value !== "" ? JSON.parse($value) : undefined}}',
         }
     }
 
@@ -94,6 +85,49 @@ export const splitOutputProperty: INodeProperties = {
         'Whether to split output into multiple items. If disabled, all data will be returned as one item.',
 };
 
+export const paginationProperty: INodeProperties = {
+    displayName: 'Pagination',
+    name: 'pagination',
+    type: 'collection',
+    placeholder: 'Add Pagination Option',
+    default: {},
+    options: [
+        returnAllProperty,
+        limitProperty,
+    ],
+}
+
+export const batchingProperty: INodeProperties = {
+    displayName: 'Batching',
+    name: 'batching',
+    type: 'collection',
+    placeholder: 'Add Batching Option',
+    default: {},
+    options: [
+        {
+            displayName: 'Pages per Batch', // Changed from "Batch Size"
+            name: 'batchSize',
+            type: 'number',
+            typeOptions: {
+                minValue: 1,
+            },
+            default: 20, // Default to 1 page per batch
+            description: 'The number of pages to request concurrently in each batch to avoid rate limits',
+        },
+        {
+            // eslint-disable-next-line n8n-nodes-base/node-param-display-name-miscased
+            displayName: 'Batch Interval (ms)', // Changed from "Batch Interval"
+            name: 'batchInterval',
+            type: 'number',
+            typeOptions: {
+                minValue: 0,
+            },
+            default: 1000, // Default to 1 second
+            description: 'The time to wait in milliseconds between each batch of requests',
+        },
+    ],
+}
+
 export const getManyOptionsProperty: INodeProperties = {
     displayName: 'Options',
     name: 'options',
@@ -103,5 +137,7 @@ export const getManyOptionsProperty: INodeProperties = {
     options: [
         filterProperty,
         includeDeletedProperty,
+        paginationProperty,
+        batchingProperty
     ],
 };

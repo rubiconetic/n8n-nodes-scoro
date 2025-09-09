@@ -11,6 +11,8 @@ export const triggerCreateDescription: INodeProperties[] = [
         ...requestProperty,
         displayOptions: {
             show: showOnlyForTriggerCreate,
-        }
+        },
+        description: 'The request body for creating a trigger.',
+
     }
 ];

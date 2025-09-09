@@ -3,7 +3,7 @@
  * sorts the array alphabetically by name, and returns the updated content.
  * @param {string} content The original file content.
  * @param {string} newName The 'name' property for the new option (e.g., 'PascalCase').
- * @param {string} newValue The 'value' property for the new option (e.g., 'plural').
+ * @param {string} newValue The 'value' property for the new option (e.g., 'singular').
  * @returns {string} The updated file content.
  */
 function addAndSortResourceOption(content, newName, newValue) {
@@ -34,7 +34,7 @@ function addAndSortResourceOption(content, newName, newValue) {
     const newOptionsContent = options
         .map(
             (option) =>
-                `\t\t\t\t\t{\n\t\t\t\t\t\tname: '${option.name}',\n\t\t\t\t\t\tvalue: '${option.value}',\n\t\t\t\t\t},`,
+                `\t\t\t\t\t{ name: '${option.name}', value: '${option.value}' },`,
         )
         .join('\n');
 
@@ -53,7 +53,6 @@ function addAndSortResourceOption(content, newName, newValue) {
  * @returns {string} The updated file content.
  */
 function addAndSortImport(content, newImport, modulePath) {
-    // CORRECTED REGEX: Uses [^}]*? to prevent matching across multiple import statements.
     const importRegex = new RegExp(`import {([^}]*?)} from '${modulePath}';`);
     const match = content.match(importRegex);
 
@@ -75,10 +74,10 @@ function addAndSortImport(content, newImport, modulePath) {
     if (!imports.includes(newImport)) {
         imports.push(newImport);
     }
-    imports.sort((a, b) => a.localeCompare(b));
+    imports.sort((a, b) => a.localeCompare(b.name));
 
     // Rebuild the import statement with the sorted list
-    const newStatement = `import { ${imports.join(', ')} } from '${modulePath}';`;
+    const newStatement = `import {\n\t${imports.join(',\n\t')}\n} from '${modulePath}';`;
 
     // Replace the old statement with the new one and return
     return content.replace(originalStatement, newStatement);
@@ -91,8 +90,6 @@ function addAndSortImport(content, newImport, modulePath) {
  * @returns {string} The updated file content.
  */
 function addAndSortDescription(content, newDescriptionName) {
-    // CORRECTED REGEX: Specifically looks for the 'options' array to correctly find
-    // the end of the first property object, preventing it from mixing content.
     const regex = /(properties: \[\s*\{[\s\S]*?options: \[[\s\S]*?\],[\s\S]*?\},)([\s\S]*?)(\s*\])/s;
     const match = content.match(regex);
 
@@ -159,16 +156,40 @@ function addAndSortMethod(content, newMethodName) {
     return content.replace(originalBlock, newContent);
 }
 
-// Add this new function to scoroNodeScripts.js
+
+/**
+ * Adds a new resource entry to the routingMap object in routingMap.ts.
+ * @param {string} content The original file content of routingMap.ts.
+ * @param {object} names An object with name variations.
+ * @returns {string} The updated file content.
+ */
+function addResourceToRoutingMap(content, { singular, plural }) {
+    const newRoute = `\t${singular}: {
+\t\tcreate: { method: 'POST', url: '/${plural}/modify' },
+\t\tdelete: { method: 'POST', url: '={{"/${plural}/delete/" + $parameter.${singular}Id}}' },
+\t\tget: { method: 'POST', url: '={{"/${plural}/view/" + $parameter.${singular}Id}}' },
+\t\tgetAll: { method: 'POST', url: '/${plural}/list' },
+\t\tupdate: { method: 'POST', url: '/${plural}/modify' },
+\t},`;
+
+    // Find the closing brace of the routingMap object and insert the new route before it
+    const lastBraceIndex = content.lastIndexOf('};');
+    if (lastBraceIndex === -1) {
+        console.warn('⚠️ Could not find the closing brace of routingMap. Manual update needed.');
+        return content;
+    }
+
+    const part1 = content.substring(0, lastBraceIndex);
+    const part2 = content.substring(lastBraceIndex);
+
+    return `${part1}${newRoute}\n${part2}`;
+}
+
 
 /**
  * Runs the complete sequence of modifications on the Scoro.node.ts file content.
  * @param {string} content The original file content.
  * @param {object} names An object with name variations.
- * @param {string} names.singular
- * @param {string} names.plural
- * @param {string} names.pascalCase
- * @param {string} names.pascalCasePlural
  * @returns {string} The fully updated file content.
  */
 function updateScoroNodeFile(content, { singular, plural, pascalCase, pascalCasePlural }) {
@@ -192,12 +213,7 @@ function updateScoroNodeFile(content, { singular, plural, pascalCase, pascalCase
     return nodeContent;
 }
 
-// Updated module.exports in scoroNodeScripts.js
-
 module.exports = {
     updateScoroNodeFile,
-    addAndSortResourceOption,
-    addAndSortImport,
-    addAndSortDescription,
-    addAndSortMethod,
+    addResourceToRoutingMap,
 };

@@ -1,12 +1,7 @@
 import type { INodeProperties } from 'n8n-workflow';
-// Import the shared properties
 import {
-    // limitProperty,
-    // returnAllProperty,
-    // filterProperty,
-    // includeDeletedProperty,
     getManyOptionsProperty,
-    splitOutputProperty
+    // splitOutputProperty
 } from '../../shared/descriptions';
 
 const showOnlyForUserGetMany = {
@@ -15,40 +10,12 @@ const showOnlyForUserGetMany = {
 };
 
 export const userGetManyDescription: INodeProperties[] = [
-    // Spread the imported properties and add the displayOptions
     // {
-    //     ...limitProperty,
-    //     displayOptions: {
-    //         show: {
-    //             ...showOnlyForUserGetMany,
-    //             returnAll: [false],
-    //         },
-    //     },
-    // },
-    // {
-    //     ...returnAllProperty,
+    //     ...splitOutputProperty,
     //     displayOptions: {
     //         show: showOnlyForUserGetMany,
     //     },
     // },
-    // {
-    //     ...filterProperty,
-    //     displayOptions: {
-    //         show: showOnlyForUserGetMany,
-    //     },
-    // },
-    // {
-    //     ...includeDeletedProperty,
-    //     displayOptions: {
-    //         show: showOnlyForUserGetMany,
-    //     },
-    // },
-    {
-        ...splitOutputProperty,
-        displayOptions: {
-            show: showOnlyForUserGetMany,
-        },
-    },
     {
         ...getManyOptionsProperty,
         displayOptions: {

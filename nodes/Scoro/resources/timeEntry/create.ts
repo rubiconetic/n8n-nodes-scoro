@@ -11,6 +11,8 @@ export const timeEntryCreateDescription: INodeProperties[] = [
         ...requestProperty,
         displayOptions: {
             show: showOnlyForTimeEntryCreate,
-        }
+        },
+        description: 'The request body for creating a time entry.',
+
     }
 ];

@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { getManyOptionsProperty, splitOutputProperty } from '../../shared/descriptions';
+import { getManyOptionsProperty } from '../../shared/descriptions';
 
 const showOnlyForStatusGetMany = {
     operation: ['getAll'],
@@ -7,10 +7,10 @@ const showOnlyForStatusGetMany = {
 };
 
 export const statusGetManyDescription: INodeProperties[] = [
-    {
-        ...splitOutputProperty,
-        displayOptions: { show: showOnlyForStatusGetMany },
-    },
+    // {
+    //     ...splitOutputProperty,
+    //     displayOptions: { show: showOnlyForStatusGetMany },
+    // },
     {
         ...getManyOptionsProperty,
         displayOptions: { show: showOnlyForStatusGetMany },

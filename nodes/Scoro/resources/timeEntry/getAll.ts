@@ -1,5 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { getManyOptionsProperty, splitOutputProperty } from '../../shared/descriptions';
+import { getManyOptionsProperty } from '../../shared/descriptions';
 
 const showOnlyForTimeEntryGetMany = {
     operation: ['getAll'],
@@ -7,10 +7,10 @@ const showOnlyForTimeEntryGetMany = {
 };
 
 export const timeEntryGetManyDescription: INodeProperties[] = [
-    {
-        ...splitOutputProperty,
-        displayOptions: { show: showOnlyForTimeEntryGetMany },
-    },
+    // {
+    //     ...splitOutputProperty,
+    //     displayOptions: { show: showOnlyForTimeEntryGetMany },
+    // },
     {
         ...getManyOptionsProperty,
         displayOptions: { show: showOnlyForTimeEntryGetMany },

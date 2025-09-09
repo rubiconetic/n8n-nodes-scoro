@@ -11,6 +11,8 @@ export const clientProfileCreateDescription: INodeProperties[] = [
         ...requestProperty,
         displayOptions: {
             show: showOnlyForClientProfileCreate,
-        }
+        },
+        description: 'The request body for creating a client profile.',
+
     }
 ];

@@ -11,6 +11,8 @@ export const __resource_singular__CreateDescription: INodeProperties[] = [
         ...requestProperty,
         displayOptions: {
             show: showOnlyFor__Resource_PascalCase__Create,
-        }
+        },
+        description: 'The request body for creating a __resource_singular__.',
+
     }
 ];

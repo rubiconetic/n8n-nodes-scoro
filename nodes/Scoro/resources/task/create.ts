@@ -11,6 +11,8 @@ export const taskCreateDescription: INodeProperties[] = [
         ...requestProperty,
         displayOptions: {
             show: showOnlyForTaskCreate,
-        }
+        },
+        description: 'The request body for creating a task.',
+
     }
 ];

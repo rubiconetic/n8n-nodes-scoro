@@ -1,6 +1,24 @@
-import { NodeConnectionType, type INodeType, type INodeTypeDescription } from 'n8n-workflow';
-import { calendarDescription, clientProfileDescription, companyDescription, invoiceDescription, projectDescription, roleDescription, statusDescription, taskDescription, timeEntryDescription, triggerDescription, userDescription } from './resources';
-import { getCalendarEvents, getClientProfiles, getCompanies, getInvoices, getProjects, getRoles, getTasks, getTimeEntries, getTriggers, getUsers } from './listSearch';
+import {
+	NodeConnectionType,
+	type IDataObject,
+	type IExecuteFunctions,
+	type INodeExecutionData,
+	type INodeType,
+	type INodeTypeDescription,
+	NodeOperationError,
+} from 'n8n-workflow';
+import {
+	calendarDescription, clientProfileDescription, companyDescription, invoiceDescription,
+	projectDescription, roleDescription, statusDescription, taskDescription,
+	timeEntryDescription, triggerDescription, userDescription
+} from './resources';
+import {
+	getCalendarEvents, getClientProfiles, getCompanies, getInvoices,
+	getProjects, getRoles, getTasks, getTimeEntries, getTriggers, getUsers
+} from './listSearch';
+
+import { routingMap, handleGetAllOperation, handleStandardOperation } from './execute';
+
 export class Scoro implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Scoro',
@@ -31,50 +49,17 @@ export class Scoro implements INodeType {
 				type: 'options',
 				noDataExpression: true,
 				options: [
-					{
-						name: 'Calendar',
-						value: 'calendar',
-					},
-					{
-						name: 'ClientProfile',
-						value: 'clientProfile',
-					},
-					{
-						name: 'Company',
-						value: 'company',
-					},
-					{
-						name: 'Invoice',
-						value: 'invoice',
-					},
-					{
-						name: 'Project',
-						value: 'project',
-					},
-					{
-						name: 'Role',
-						value: 'role',
-					},
-					{
-						name: 'Status',
-						value: 'status',
-					},
-					{
-						name: 'Task',
-						value: 'task',
-					},
-					{
-						name: 'Time Entry',
-						value: 'timeEntry',
-					},
-					{
-						name: 'Trigger',
-						value: 'trigger',
-					},
-					{
-						name: 'User',
-						value: 'user',
-					},
+					{ name: 'Calendar', value: 'calendar' },
+					{ name: 'ClientProfile', value: 'clientProfile' },
+					{ name: 'Company', value: 'company' },
+					{ name: 'Invoice', value: 'invoice' },
+					{ name: 'Project', value: 'project' },
+					{ name: 'Role', value: 'role' },
+					{ name: 'Status', value: 'status' },
+					{ name: 'Task', value: 'task' },
+					{ name: 'Time Entry', value: 'timeEntry' },
+					{ name: 'Trigger', value: 'trigger' },
+					{ name: 'User', value: 'user' },
 				],
 				default: 'user',
 			},
@@ -89,11 +74,9 @@ export class Scoro implements INodeType {
 			...timeEntryDescription,
 			...triggerDescription,
 			...userDescription
-		
-		
-		
 		],
 	};
+
 	methods = {
 		listSearch: {
 			getCalendarEvents,
@@ -106,10 +89,33 @@ export class Scoro implements INodeType {
 			getTimeEntries,
 			getTriggers,
 			getUsers,
-		
-		
-		
+		},
+	};
+	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
+		// 1. Get Core Parameters
+		const resource = this.getNodeParameter('resource', 0) as string;
+		const operation = this.getNodeParameter('operation', 0) as string;
+
+		// 2. Get Request Details from Routing Map
+		const requestDetails = routingMap[resource]?.[operation];
+		if (!requestDetails) {
+			throw new NodeOperationError(this.getNode(), `Operation '${operation}' for resource '${resource}' is not supported.`);
+		}
+
+		// 3. Prepare Credentials and Base Payload
+		const credentials = await this.getCredentials('scoroApi');
+		const baseURL = credentials.baseUrl as string;
+		const baseBody: IDataObject = {
+			lang: 'eng',
+			company_account_id: credentials.companyAccountId as string,
+			apiKey: credentials.apiKey as string,
+		};
+
+		// 4. Dispatch to the Correct Handler
+		if (operation === 'getAll') {
+			return handleGetAllOperation(this, requestDetails, baseBody, baseURL);
+		} else {
+			return handleStandardOperation(this, requestDetails, baseBody, baseURL, resource, operation);
 		}
 	}
 }
-

@@ -11,6 +11,7 @@ export const invoiceCreateDescription: INodeProperties[] = [
         ...requestProperty,
         displayOptions: {
             show: showOnlyForInvoiceCreate,
-        }
+        },
+        description: 'The request body for creating an invoice.',
     }
 ];

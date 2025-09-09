@@ -11,6 +11,8 @@ export const calendarCreateDescription: INodeProperties[] = [
         ...requestProperty,
         displayOptions: {
             show: showOnlyForCalendarCreate,
-        }
+        },
+        description: 'The request body for creating a calendar event.',
+
     }
 ];

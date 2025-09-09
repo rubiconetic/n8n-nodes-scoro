@@ -1,5 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { getManyOptionsProperty, splitOutputProperty } from '../../shared/descriptions';
+import { getManyOptionsProperty } from '../../shared/descriptions';
+// import { getManyOptionsProperty, splitOutputProperty } from '../../shared/descriptions';
 
 const showOnlyFor__Resource_PascalCase__GetMany = {
     operation: ['getAll'],
@@ -7,10 +8,10 @@ const showOnlyFor__Resource_PascalCase__GetMany = {
 };
 
 export const __resource_singular__GetManyDescription: INodeProperties[] = [
-    {
-        ...splitOutputProperty,
-        displayOptions: { show: showOnlyFor__Resource_PascalCase__GetMany },
-    },
+    // {
+    //     ...splitOutputProperty,
+    //     displayOptions: { show: showOnlyFor__Resource_PascalCase__GetMany },
+    // },
     {
         ...getManyOptionsProperty,
         displayOptions: { show: showOnlyFor__Resource_PascalCase__GetMany },

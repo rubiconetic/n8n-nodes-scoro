@@ -12,6 +12,8 @@ export const companyCreateDescription: INodeProperties[] = [
         ...requestProperty,
         displayOptions: {
             show: showOnlyForCompanyCreate,
-        }
+        },
+        description: 'The request body for creating a company.',
+
     }
 ];

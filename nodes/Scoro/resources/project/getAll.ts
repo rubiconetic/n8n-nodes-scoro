@@ -1,7 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 import {
     getManyOptionsProperty,
-    splitOutputProperty
 } from '../../shared/descriptions';
 
 const showOnlyForProjectGetMany = {
@@ -10,12 +9,12 @@ const showOnlyForProjectGetMany = {
 };
 
 export const projectGetManyDescription: INodeProperties[] = [
-    {
-        ...splitOutputProperty,
-        displayOptions: {
-            show: showOnlyForProjectGetMany,
-        },
-    },
+    // {
+    //     ...splitOutputProperty,
+    //     displayOptions: {
+    //         show: showOnlyForProjectGetMany,
+    //     },
+    // },
     {
         ...getManyOptionsProperty,
         displayOptions: {
