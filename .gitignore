@@ -1,0 +1,12 @@
+# Dependency directories
+node_modules
+dist
+
+# VSCode settings
+.vscode
+
+# Sensitive files
+.env
+
+# OS-specific files
+.DS_Store
