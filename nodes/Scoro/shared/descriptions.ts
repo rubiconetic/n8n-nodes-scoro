@@ -1,8 +1,7 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-// Reusable Limit Property
 export const limitProperty: INodeProperties = {
-    displayName: 'Page Limit', // Changed from "Limit" to "Page Limit"
+    displayName: 'Page Limit',
     name: 'limit',
     type: 'number',
     displayOptions: {
@@ -17,7 +16,6 @@ export const limitProperty: INodeProperties = {
     description: 'Max number of results to return'
 };
 
-// Reusable Return All Property
 export const returnAllProperty: INodeProperties = {
     displayName: 'Return All',
     name: 'returnAll',
@@ -26,7 +24,6 @@ export const returnAllProperty: INodeProperties = {
     description: 'Whether to return all results or only up to a given limit',
 };
 
-// Reusable Include Deleted Property
 export const includeDeletedProperty: INodeProperties = {
     displayName: 'Include Deleted',
     name: 'includeDeleted',
@@ -42,7 +39,6 @@ export const includeDeletedProperty: INodeProperties = {
     },
 };
 
-// Reusable Filter Property
 export const filterProperty: INodeProperties = {
     displayName: 'Filter',
     name: 'filter',
@@ -105,24 +101,24 @@ export const batchingProperty: INodeProperties = {
     default: {},
     options: [
         {
-            displayName: 'Pages per Batch', // Changed from "Batch Size"
+            displayName: 'Pages per Batch',
             name: 'batchSize',
             type: 'number',
             typeOptions: {
                 minValue: 1,
             },
-            default: 20, // Default to 1 page per batch
+            default: 20,
             description: 'The number of pages to request concurrently in each batch to avoid rate limits',
         },
         {
-            // eslint-disable-next-line n8n-nodes-base/node-param-display-name-miscased
-            displayName: 'Batch Interval (ms)', // Changed from "Batch Interval"
+            // eslint-disable-next-line n8n-nodes-base/node-param-display-name-miscased -- ms is correct casing
+            displayName: 'Batch Interval (ms)',
             name: 'batchInterval',
             type: 'number',
             typeOptions: {
                 minValue: 0,
             },
-            default: 1000, // Default to 1 second
+            default: 1000,
             description: 'The time to wait in milliseconds between each batch of requests',
         },
     ],
