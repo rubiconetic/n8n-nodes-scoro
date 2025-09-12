@@ -7,10 +7,6 @@ const showOnlyForClientProfileGetMany = {
 };
 
 export const clientProfileGetManyDescription: INodeProperties[] = [
-    // {
-    //     ...splitOutputProperty,
-    //     displayOptions: { show: showOnlyForClientProfileGetMany },
-    // },
     {
         ...getManyOptionsProperty,
         displayOptions: { show: showOnlyForClientProfileGetMany },

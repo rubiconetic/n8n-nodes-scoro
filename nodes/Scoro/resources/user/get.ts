@@ -11,7 +11,7 @@ export const userGetDescription: INodeProperties[] = [
 		name: 'userId',
 		type: 'resourceLocator',
 		displayOptions: { show: showOnlyForUserGet },
-		default: { mode: 'list', value: '' }, // 👈 Set default mode
+		default: { mode: 'list', value: '' },
 		required: true,
 		modes: [
 			{
@@ -20,7 +20,7 @@ export const userGetDescription: INodeProperties[] = [
 				type: 'list',
 				placeholder: 'Select a user...',
 				typeOptions: {
-					searchListMethod: 'getUsers', // 👈 Point to the function we created
+					searchListMethod: 'getUsers',
 					searchable: true,
 				},
 			},
@@ -33,7 +33,7 @@ export const userGetDescription: INodeProperties[] = [
 					{
 						type: 'regex',
 						properties: {
-							regex: '^[0-9]+$', // Ensure it's a number
+							regex: '^[0-9]+$',
 							errorMessage: 'User ID must be numeric',
 						},
 					},

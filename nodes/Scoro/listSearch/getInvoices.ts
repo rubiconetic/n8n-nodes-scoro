@@ -1,8 +1,8 @@
 import type { ILoadOptionsFunctions, INodeListSearchResult, INodeListSearchItems } from 'n8n-workflow';
 
 type ScoroInvoices = {
-    id: number; // Adjust if the ID key is different
-    no: number; // Adjust to a descriptive name key
+    id: number;
+    no: number;
 };
 
 export async function getInvoices(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {

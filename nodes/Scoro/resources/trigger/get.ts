@@ -32,7 +32,7 @@ export const triggerGetDescription: INodeProperties[] = [
                     {
                         type: 'regex',
                         properties: {
-                            regex: '^[0-9]+$', // Ensure it's a number
+                            regex: '^[0-9]+$',
                             errorMessage: 'Trigger ID must be numeric',
                         },
                     },

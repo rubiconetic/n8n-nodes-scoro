@@ -7,10 +7,6 @@ const showOnlyForCompanyGetMany = {
 };
 
 export const companyGetManyDescription: INodeProperties[] = [
-    // {
-    //     ...splitOutputProperty,
-    //     displayOptions: { show: showOnlyForCompanyGetMany },
-    // },
     {
         ...getManyOptionsProperty,
         displayOptions: { show: showOnlyForCompanyGetMany },

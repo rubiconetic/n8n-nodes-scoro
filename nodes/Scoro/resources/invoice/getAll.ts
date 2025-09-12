@@ -7,10 +7,6 @@ const showOnlyForInvoiceGetMany = {
 };
 
 export const invoiceGetManyDescription: INodeProperties[] = [
-    // {
-    //     ...splitOutputProperty,
-    //     displayOptions: { show: showOnlyForInvoiceGetMany },
-    // },
     {
         ...getManyOptionsProperty,
         displayOptions: { show: showOnlyForInvoiceGetMany },

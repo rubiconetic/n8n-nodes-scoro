@@ -120,7 +120,6 @@ export const projectDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						// The ID of the project to update is added to the URL
 						url: '={{"/projects/modify/" + $parameter.projectId}}',
 						body: {
 							request: '={{$parameter.request}}',

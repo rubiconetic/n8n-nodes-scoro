@@ -7,10 +7,6 @@ const showOnlyForStatusGetMany = {
 };
 
 export const statusGetManyDescription: INodeProperties[] = [
-    // {
-    //     ...splitOutputProperty,
-    //     displayOptions: { show: showOnlyForStatusGetMany },
-    // },
     {
         ...getManyOptionsProperty,
         displayOptions: { show: showOnlyForStatusGetMany },

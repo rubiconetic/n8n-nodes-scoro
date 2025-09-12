@@ -1,5 +1,3 @@
-// @/nodes/Scoro/routingMap.ts
-
 import { RequestDetails } from '../types';
 
 export const routingMap: Record<string, Record<string, RequestDetails>> = {

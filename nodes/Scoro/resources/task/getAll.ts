@@ -7,10 +7,6 @@ const showOnlyForTaskGetMany = {
 };
 
 export const taskGetManyDescription: INodeProperties[] = [
-    // {
-    //     ...splitOutputProperty,
-    //     displayOptions: { show: showOnlyForTaskGetMany },
-    // },
     {
         ...getManyOptionsProperty,
         displayOptions: { show: showOnlyForTaskGetMany },

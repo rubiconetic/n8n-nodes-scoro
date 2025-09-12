@@ -7,10 +7,6 @@ const showOnlyForTriggerGetMany = {
 };
 
 export const triggerGetManyDescription: INodeProperties[] = [
-    // {
-    //     ...splitOutputProperty,
-    //     displayOptions: { show: showOnlyForTriggerGetMany },
-    // },
     {
         ...getManyOptionsProperty,
         displayOptions: { show: showOnlyForTriggerGetMany },

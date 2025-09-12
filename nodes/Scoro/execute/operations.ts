@@ -1,5 +1,3 @@
-// @/nodes/Scoro/operations.ts
-
 import { IExecuteFunctions, INodeExecutionData, IDataObject, NodeOperationError } from 'n8n-workflow';
 import { RequestDetails } from '../types';
 
@@ -14,8 +12,7 @@ export async function handleGetAllOperation(
     baseURL: string,
 ): Promise<INodeExecutionData[][]> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const options = context.getNodeParameter('options', 0, {}) as any; // Add specific type if available
-
+    const options = context.getNodeParameter('options', 0, {}) as any;
     const returnData: INodeExecutionData[] = [];
     const returnAll = options.pagination?.returnAll ?? false;
     const pageLimit = returnAll ? Infinity : options.pagination?.limit ?? 1;
@@ -49,7 +46,7 @@ export async function handleGetAllOperation(
             const results = response.data;
             if (results && results.length > 0) {
                 returnData.push(...context.helpers.returnJsonArray(results));
-                if (results.length === 100) hasMoreData = true; // API returns more if limit is met
+                if (results.length === 100) hasMoreData = true;
             }
         }
 

@@ -7,10 +7,6 @@ const showOnlyForCalendarGetMany = {
 };
 
 export const calendarGetManyDescription: INodeProperties[] = [
-    // {
-    //     ...splitOutputProperty,
-    //     displayOptions: { show: showOnlyForCalendarGetMany },
-    // },
     {
         ...getManyOptionsProperty,
         displayOptions: { show: showOnlyForCalendarGetMany },

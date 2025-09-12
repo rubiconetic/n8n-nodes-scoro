@@ -1,8 +1,8 @@
 import type { ILoadOptionsFunctions, INodeListSearchResult, INodeListSearchItems } from 'n8n-workflow';
 
 type ScoroTimeEntry = {
-    time_entry_id: number; // Adjust if the ID key is different
-    title: string; // Adjust to a descriptive name key
+    time_entry_id: number;
+    title: string;
     time_entry_type: string;
 };
 

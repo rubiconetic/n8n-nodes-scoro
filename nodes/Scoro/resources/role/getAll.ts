@@ -7,10 +7,6 @@ const showOnlyForRoleGetMany = {
 };
 
 export const roleGetManyDescription: INodeProperties[] = [
-    // {
-    //     ...splitOutputProperty,
-    //     displayOptions: { show: showOnlyForRoleGetMany },
-    // },
     {
         ...getManyOptionsProperty,
         displayOptions: { show: showOnlyForRoleGetMany },

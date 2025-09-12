@@ -1,8 +1,8 @@
 import type { ILoadOptionsFunctions, INodeListSearchResult, INodeListSearchItems } from 'n8n-workflow';
 
 type ScoroRoles = {
-    id: number; // Adjust if the ID key is different
-    name: string; // Adjust to a descriptive name key
+    id: number;
+    name: string;
 };
 
 export async function getRoles(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {

@@ -11,13 +11,11 @@ type ScoroUser = {
 };
 
 export async function getUsers(this: ILoadOptionsFunctions): Promise<INodeListSearchResult> {
-    // Manually get the credentials to access the Base URL
     const credentials = await this.getCredentials('scoroApi');
     const baseUrl = credentials.baseUrl as string;
 
     const response = await this.helpers.httpRequestWithAuthentication.call(this, 'scoroApi', {
         method: 'POST',
-        // 👇 Construct the full URL manually
         url: `${baseUrl}/users/list`,
         body: {
             request: {

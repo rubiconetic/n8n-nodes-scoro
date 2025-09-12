@@ -1,8 +1,8 @@
 import type { ILoadOptionsFunctions, INodeListSearchResult, INodeListSearchItems } from 'n8n-workflow';
 
 type ScoroTasks = {
-    event_id: number; // Adjust if the ID key is different
-    event_name: string; // Adjust to a descriptive name key
+    event_id: number;
+    event_name: string;
     activity_type: string;
 };
 

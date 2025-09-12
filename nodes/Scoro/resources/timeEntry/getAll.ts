@@ -7,10 +7,6 @@ const showOnlyForTimeEntryGetMany = {
 };
 
 export const timeEntryGetManyDescription: INodeProperties[] = [
-    // {
-    //     ...splitOutputProperty,
-    //     displayOptions: { show: showOnlyForTimeEntryGetMany },
-    // },
     {
         ...getManyOptionsProperty,
         displayOptions: { show: showOnlyForTimeEntryGetMany },

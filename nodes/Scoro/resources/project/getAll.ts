@@ -9,12 +9,6 @@ const showOnlyForProjectGetMany = {
 };
 
 export const projectGetManyDescription: INodeProperties[] = [
-    // {
-    //     ...splitOutputProperty,
-    //     displayOptions: {
-    //         show: showOnlyForProjectGetMany,
-    //     },
-    // },
     {
         ...getManyOptionsProperty,
         displayOptions: {
