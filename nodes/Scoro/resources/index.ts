@@ -1,5 +1,6 @@
 export * from './calendar';
 export * from './clientProfile';
+export * from './comment';
 export * from './company';
 export * from './invoice';
 export * from './project';

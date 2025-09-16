@@ -69,4 +69,10 @@ export const routingMap: Record<string, Record<string, RequestDetails>> = {
         get: { method: 'POST', url: '={{"/users/view/" + $parameter.userId}}' },
         getAll: { method: 'POST', url: '/users/list' },
     },
+    comment: {
+        create: { method: 'POST', url: '/comments/modify' },
+        delete: { method: 'POST', url: '={{"/comments/delete/" + $parameter.commentId}}' },
+        getAll: { method: 'POST', url: '/comments/list' },
+        update: { method: 'POST', url: '/comments/modify + $parameter.commentId' },
+    },
 };

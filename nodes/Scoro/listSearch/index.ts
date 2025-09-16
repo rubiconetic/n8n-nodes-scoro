@@ -1,5 +1,6 @@
 export * from './getCalendar';
 export * from './getClientProfiles';
+export * from './getComments';
 export * from './getCompanies';
 export * from './getInvoices';
 export * from './getProjects';
