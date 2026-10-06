@@ -11,6 +11,7 @@ import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workf
 import type { ResourceHandler } from './actions/common';
 import { apiRequestHandler } from './actions/apiRequest';
 import { billHandler } from './actions/bill';
+import { calendarEventHandler } from './actions/calendarEvent';
 import { commentHandler } from './actions/comment';
 import { contactHandler } from './actions/contact';
 import { expenseHandler } from './actions/expense';
@@ -23,6 +24,10 @@ import { taskHandler } from './actions/task';
 import { timeEntryHandler } from './actions/timeEntry';
 import { apiRequestFields, apiRequestOperations } from './descriptions/ApiRequestDescription';
 import { billFields, billOperations } from './descriptions/BillDescription';
+import {
+	calendarEventFields,
+	calendarEventOperations,
+} from './descriptions/CalendarEventDescription';
 import { commentFields, commentOperations } from './descriptions/CommentDescription';
 import { contactFields, contactOperations } from './descriptions/ContactDescription';
 import { expenseFields, expenseOperations } from './descriptions/ExpenseDescription';
@@ -43,6 +48,7 @@ import { searchContacts, searchProjects, searchTasks, searchUsers } from './list
 const handlers: Record<string, ResourceHandler> = {
 	apiRequest: apiRequestHandler,
 	bill: billHandler,
+	calendarEvent: calendarEventHandler,
 	comment: commentHandler,
 	contact: contactHandler,
 	expense: expenseHandler,
@@ -86,7 +92,7 @@ export class Scoro implements INodeType {
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description:
-			'Manage bills, comments, contacts, expenses, invoices, orders, projects, purchase orders, quotes, tasks and time entries in Scoro',
+			'Manage bills, calendar events, comments, contacts, expenses, invoices, orders, projects, purchase orders, quotes, tasks and time entries in Scoro',
 		defaults: {
 			name: 'Scoro',
 		},
@@ -113,6 +119,10 @@ export class Scoro implements INodeType {
 					{
 						name: 'Bill',
 						value: 'bill',
+					},
+					{
+						name: 'Calendar Event',
+						value: 'calendarEvent',
 					},
 					{
 						name: 'Comment',
@@ -161,6 +171,8 @@ export class Scoro implements INodeType {
 			...apiRequestFields,
 			...billOperations,
 			...billFields,
+			...calendarEventOperations,
+			...calendarEventFields,
 			...commentOperations,
 			...commentFields,
 			...contactOperations,

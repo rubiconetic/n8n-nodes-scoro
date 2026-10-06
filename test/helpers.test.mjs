@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import helpers from '../dist/nodes/Scoro/helpers.js';
 import transport from '../dist/nodes/Scoro/GenericFunctions.js';
 import { billHandler } from '../dist/nodes/Scoro/actions/bill.js';
+import { calendarEventHandler } from '../dist/nodes/Scoro/actions/calendarEvent.js';
 import { commentHandler } from '../dist/nodes/Scoro/actions/comment.js';
 import { contactHandler } from '../dist/nodes/Scoro/actions/contact.js';
 import { expenseHandler } from '../dist/nodes/Scoro/actions/expense.js';
@@ -651,5 +652,49 @@ test('Expense getAll: calls /expenses/list with company_id in filter', async () 
 	const { options } = ctx.calls[0];
 	assert.equal(options.url, 'https://acme.scoro.com/api/v2/expenses/list');
 	assert.equal(options.body.filter.company_id, 55);
+	assert.equal(result.length, 1);
+});
+
+test('Calendar Event create: sends event_name and dates to /calendar/modify', async () => {
+	const ctx = fakeContext([ok({ event_id: 70 })], undefined, {
+		eventName: 'Client Strategy Meeting',
+		additionalFields: {
+			startDatetime: '2026-10-10T10:00:00Z',
+			endDatetime: '2026-10-10T11:00:00Z',
+			status: 'busy',
+			fullDayEvent: false,
+		},
+		customFieldsUi: {},
+	});
+	await calendarEventHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/calendar/modify');
+	assert.equal(options.body.request.event_name, 'Client Strategy Meeting');
+	assert.equal(options.body.request.start_datetime, '2026-10-10T10:00:00Z');
+	assert.equal(options.body.request.end_datetime, '2026-10-10T11:00:00Z');
+	assert.equal(options.body.request.status, 'busy');
+	assert.equal(options.body.request.full_day_event, 0);
+});
+
+test('Calendar Event getAll: calls /calendar/list with status and date filter', async () => {
+	const ctx = fakeContext([ok([{ event_id: 70 }])], undefined, {
+		filters: {
+			status: 'busy',
+			startFrom: '2026-10-01',
+			startTo: '2026-10-31',
+		},
+		returnAll: true,
+		options: {},
+	});
+	const result = await calendarEventHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/calendar/list');
+	assert.equal(options.body.filter.status, 'busy');
+	assert.deepEqual(options.body.filter.start_datetime, {
+		from_date: '2026-10-01',
+		to_date: '2026-10-31',
+	});
 	assert.equal(result.length, 1);
 });

@@ -30,6 +30,7 @@ The **Scoro** node supports operations across core business resources, plus a ge
 | Resource           | Create | Delete | Get | Get Many | Update | Set Done | Generate PDF | Send |
 | :----------------- | :----: | :----: | :-: | :------: | :----: | :------: | :----------: | :--: |
 | **Bill**           |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Calendar Event** |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
 | **Comment**        |   ✅   |   ✅   |     |    ✅    |   ✅   |          |              |      |
 | **Contact**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
 | **Expense**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
