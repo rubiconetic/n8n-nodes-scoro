@@ -1,7 +1,9 @@
 import type { INodeProperties } from 'n8n-workflow';
 
 import {
+	customFieldsFilterOption,
 	customFieldsProperty,
+	customJsonFilterOption,
 	listOptionsProperty,
 	listProperties,
 	locator,
@@ -350,6 +352,8 @@ export const contactFields: INodeProperties[] = [
 				placeholder: 'e.g. Acme%',
 				description: 'Name to match. Use % as a wildcard, for example "Acme%".',
 			},
+			customFieldsFilterOption,
+			customJsonFilterOption,
 		],
 	},
 	listOptionsProperty('contact'),

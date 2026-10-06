@@ -1,7 +1,9 @@
 import type { INodeProperties } from 'n8n-workflow';
 
 import {
+	customFieldsFilterOption,
 	customFieldsProperty,
+	customJsonFilterOption,
 	documentLinesProperty,
 	listOptionsProperty,
 	listProperties,
@@ -294,6 +296,8 @@ export const orderFields: INodeProperties[] = [
 				default: 'pending',
 				description: 'Filter orders by status',
 			},
+			customFieldsFilterOption,
+			customJsonFilterOption,
 		],
 	},
 	listOptionsProperty('order'),

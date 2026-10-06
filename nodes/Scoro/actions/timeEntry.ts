@@ -3,7 +3,7 @@ import { NodeOperationError } from 'n8n-workflow';
 
 import { scoroApiRequest } from '../GenericFunctions';
 import { compact, dateRange, toDateOnly, toDuration, toId } from '../helpers';
-import { getMany, toFlag } from './common';
+import { composeFilter, getMany, toFlag } from './common';
 
 function buildTimeEntryRequest(fields: IDataObject): IDataObject {
 	const dateOnly = toDateOnly(fields.date);
@@ -66,7 +66,7 @@ export async function timeEntryHandler(
 
 	if (operation === 'getAll') {
 		const filters = this.getNodeParameter('filters', itemIndex, {}) as IDataObject;
-		const filter = compact({
+		const filter = composeFilter(filters, {
 			event_id: toId(filters.eventId),
 			user_id: toId(filters.userId),
 			is_completed: toFlag(filters.isCompleted),

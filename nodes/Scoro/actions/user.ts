@@ -2,8 +2,8 @@ import type { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
 import { scoroApiRequest } from '../GenericFunctions';
-import { compact, toId } from '../helpers';
-import { getMany } from './common';
+import { toId } from '../helpers';
+import { composeFilter, getMany } from './common';
 
 export async function userHandler(
 	this: IExecuteFunctions,
@@ -17,7 +17,7 @@ export async function userHandler(
 
 	if (operation === 'getAll') {
 		const filters = this.getNodeParameter('filters', itemIndex, {}) as IDataObject;
-		const filter = compact({
+		const filter = composeFilter(filters, {
 			status: filters.status,
 		});
 

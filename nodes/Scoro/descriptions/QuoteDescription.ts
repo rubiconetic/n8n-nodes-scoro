@@ -1,7 +1,9 @@
 import type { INodeProperties } from 'n8n-workflow';
 
 import {
+	customFieldsFilterOption,
 	customFieldsProperty,
+	customJsonFilterOption,
 	documentLinesProperty,
 	listOptionsProperty,
 	listProperties,
@@ -316,6 +318,8 @@ export const quoteFields: INodeProperties[] = [
 				default: 'pending',
 				description: 'Filter quotes by status',
 			},
+			customFieldsFilterOption,
+			customJsonFilterOption,
 		],
 	},
 	listOptionsProperty('quote'),

@@ -1,6 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-import { listOptionsProperty, listProperties, locator } from './common';
+import { customJsonFilterOption, listOptionsProperty, listProperties, locator } from './common';
 
 export const userOperations: INodeProperties[] = [
 	{
@@ -68,6 +68,7 @@ export const userFields: INodeProperties[] = [
 				default: 'active',
 				description: 'Filter users by status',
 			},
+			customJsonFilterOption,
 		],
 	},
 	listOptionsProperty('user'),

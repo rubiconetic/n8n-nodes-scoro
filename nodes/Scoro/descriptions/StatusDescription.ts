@@ -1,6 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-import { listOptionsProperty, listProperties } from './common';
+import { customJsonFilterOption, listOptionsProperty, listProperties } from './common';
 
 export const statusOperations: INodeProperties[] = [
 	{
@@ -59,6 +59,7 @@ export const statusFields: INodeProperties[] = [
 				default: 'tasks',
 				description: 'Module to get statuses for. If omitted, returns all statuses.',
 			},
+			customJsonFilterOption,
 		],
 	},
 	listOptionsProperty('status'),

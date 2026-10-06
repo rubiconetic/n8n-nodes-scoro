@@ -6,7 +6,7 @@ This is an n8n community node. It lets you use **[Scoro](https://www.scoro.com/)
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/reference/license/) workflow automation platform.
 
-[Installation](#installation-) • [Operations](#operations-) • [Credentials](#credentials-) • [Compatibility](#compatibility-) • [Resources](#resources-) • [Version history](#version-history-)
+[Installation](#installation-) • [Operations](#operations-) • [Credentials](#credentials-) • [Compatibility](#compatibility-) • [Roadmap](#roadmap-) • [Resources](#resources-) • [Version history](#version-history-)
 
 > ℹ️ **Notice**: Version 1.1.0 provides full Scoro API v2 compatibility across all core operations (including Bill, Calendar Event, Client Profile, Comment, Contact, Expense, Invoice, Order, Project, Purchase Order, Quote, Role, Status, Task, Time Entry, Trigger, and User), plus a generic **API Request** resource for any custom or specialized endpoints.
 
@@ -59,7 +59,7 @@ The **Scoro** node supports operations across 17 first-class resources, plus a g
 Every resource with a **Get Many** operation supports:
 
 - **Return All / Limit**: Retrieve all matching records across pages or specify a maximum count.
-- **Filters**: Filter records by date ranges, status, owner, project, or client. Text filters support `%` as a wildcard (e.g. `Acme%`).
+- **Filters**: Filter records by date ranges, status, owner, project, or client. Text filters support `%` as a wildcard (e.g. `Acme%`). Resources supporting custom fields include first-class **Custom Fields** filtering. Advanced queries can also supply arbitrary Scoro filter parameters via **Custom Filters (JSON)**.
 - **Detailed Response**: Returns full record data. Scoro caps detailed responses at 25 records per request, which the node automatically pages.
 - **Include Deleted**: Retrieve records deleted within the last 30 days.
 
@@ -130,6 +130,22 @@ The Scoro API enforces per-second and daily request limits:
 - Minimum n8n version: `1.0.0`
 - Tested against n8n versions: `1.0.0+`
 - Node.js version: `20` or higher
+
+---
+
+## Roadmap 🗺️
+
+Future planned additions to `n8n-nodes-scoro`:
+
+### 🚀 Upcoming Features & Resources
+- [ ] **Product Catalog (`products`)**: Full CRUD for products and services (`/products/*`) to streamline line item generation and ERP/e-commerce syncs.
+- [ ] **Direct Binary PDF Downloads**: Toggle on `Generate PDF` operations (`Invoice`, `Quote`, `Order`, `Purchase Order`) to download files directly into n8n's `binary.data` without needing an extra HTTP Request node.
+- [ ] **File Attachments (`files`)**: Upload, download, and delete attachments on Tasks, Projects, Invoices, and Contacts (`/files/*`).
+- [ ] **Prepayments (`prepayments`)**: Full CRUD and PDF generation for advance payment documents to complete 100% parity with `ScoroTrigger`.
+- [ ] **Project Phases (`projectPhases`)**: Manage project milestones and phases for automated project template onboarding.
+- [ ] **Calendar Availability Check**: Dedicated free/busy query operation (`POST /calendar/check`) for booking and scheduling automations.
+
+> 💡 *Need one of these right now?* You can call any of these endpoints immediately using the built-in **API Request** resource. Feel free to open an issue or PR on [GitHub](https://github.com/rubiconetic/n8n-nodes-scoro) to vote for features!
 
 ---
 
