@@ -18,6 +18,7 @@ function buildTaskRequest(fields: IDataObject): IDataObject {
 		start_datetime: fields.startDatetime,
 		datetime_due: fields.datetimeDue,
 		duration_planned: toDuration(fields.durationPlanned),
+		parent_id: toId(fields.parentId),
 		description: fields.description,
 		is_completed: toFlag(fields.isCompleted),
 	});
@@ -69,6 +70,15 @@ export async function taskHandler(
 		const taskId = toId(this.getNodeParameter('taskId', itemIndex));
 		await scoroApiRequest.call(this, `/tasks/delete/${taskId}`, { request: {} });
 		return { deleted: true, id: taskId };
+	}
+
+	if (operation === 'setDone') {
+		const taskId = toId(this.getNodeParameter('taskId', itemIndex));
+		const completedDatetime = this.getNodeParameter('completedDatetime', itemIndex, '') as string;
+		const request: IDataObject = {};
+		if (completedDatetime) request.completed_datetime = completedDatetime;
+		await scoroApiRequest.call(this, `/tasks/setDone/${taskId}`, { request });
+		return { success: true, id: taskId };
 	}
 
 	if (operation === 'getAll') {

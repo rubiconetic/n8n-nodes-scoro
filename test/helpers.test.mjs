@@ -2,13 +2,24 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import helpers from '../dist/nodes/Scoro/helpers.js';
 import transport from '../dist/nodes/Scoro/GenericFunctions.js';
+import { billHandler } from '../dist/nodes/Scoro/actions/bill.js';
+import { calendarEventHandler } from '../dist/nodes/Scoro/actions/calendarEvent.js';
 import { commentHandler } from '../dist/nodes/Scoro/actions/comment.js';
 import { contactHandler } from '../dist/nodes/Scoro/actions/contact.js';
+import { expenseHandler } from '../dist/nodes/Scoro/actions/expense.js';
 import { invoiceHandler } from '../dist/nodes/Scoro/actions/invoice.js';
+import { orderHandler } from '../dist/nodes/Scoro/actions/order.js';
 import { projectHandler } from '../dist/nodes/Scoro/actions/project.js';
+import { purchaseOrderHandler } from '../dist/nodes/Scoro/actions/purchaseOrder.js';
+import { quoteHandler } from '../dist/nodes/Scoro/actions/quote.js';
 import { taskHandler } from '../dist/nodes/Scoro/actions/task.js';
 import { timeEntryHandler } from '../dist/nodes/Scoro/actions/timeEntry.js';
 import { apiRequestHandler } from '../dist/nodes/Scoro/actions/apiRequest.js';
+import { clientProfileHandler } from '../dist/nodes/Scoro/actions/clientProfile.js';
+import { roleHandler } from '../dist/nodes/Scoro/actions/role.js';
+import { statusHandler } from '../dist/nodes/Scoro/actions/status.js';
+import { triggerHandler } from '../dist/nodes/Scoro/actions/trigger.js';
+import { userHandler } from '../dist/nodes/Scoro/actions/user.js';
 
 const {
 	rlValue,
@@ -346,6 +357,34 @@ test('Task create with relatedUsers: ["3", "4"]: related_users is [3, 4]', async
 	assert.deepEqual(options.body.request.related_users, [3, 4]);
 });
 
+test('Task create with parentId: body has parent_id', async () => {
+	const ctx = fakeContext([ok({ event_id: 2 })], undefined, {
+		eventName: 'Subtask test',
+		additionalFields: {
+			parentId: '42',
+		},
+		customFieldsUi: {},
+	});
+	await taskHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/tasks/modify');
+	assert.equal(options.body.request.parent_id, 42);
+});
+
+test('Task setDone: calls /tasks/setDone/:id with optional completed_datetime', async () => {
+	const ctx = fakeContext([ok({})], undefined, {
+		taskId: '99',
+		completedDatetime: '2026-10-05T19:00:00Z',
+	});
+	const res = await taskHandler.call(ctx, 'setDone', 0);
+	assert.deepEqual(res, { success: true, id: 99 });
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/tasks/setDone/99');
+	assert.equal(options.body.request.completed_datetime, '2026-10-05T19:00:00Z');
+});
+
 test('Project Get Many with Detailed Response on: per_page is 25 and detailed_response is true', async () => {
 	const ctx = fakeContext([ok([])], undefined, {
 		filters: {},
@@ -450,3 +489,351 @@ test('Comment getAll: calls /comments/list with module and object_id in filter a
 	assert.equal(result.length, 1);
 });
 
+test('Order create: sends lines and company_id to /orders/modify', async () => {
+	const ctx = fakeContext([ok({ order_id: 10 })], undefined, {
+		companyId: '15',
+		additionalFields: {
+			currency: 'EUR',
+		},
+		linesUi: {
+			lineValues: [
+				{
+					productId: '2',
+					amount: 3,
+					price: 50,
+					comment: 'Order line item',
+				},
+			],
+		},
+		customFieldsUi: {},
+	});
+	await orderHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/orders/modify');
+	assert.equal(options.body.request.company_id, 15);
+	assert.equal(options.body.request.currency, 'EUR');
+	assert.equal(options.body.request.lines.length, 1);
+	assert.equal(options.body.request.lines[0].product_id, 2);
+});
+
+test('Order getPdf: calls /orders/pdf/:id', async () => {
+	const ctx = fakeContext([ok({ pdf_link: 'https://example.com/order.pdf' })], undefined, {
+		orderId: '10',
+		templateId: '5',
+	});
+	const res = await orderHandler.call(ctx, 'getPdf', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/orders/pdf/10');
+	assert.equal(options.body.request.template_id, 5);
+	assert.equal(res.pdf_link, 'https://example.com/order.pdf');
+});
+
+test('Purchase Order create: sends lines and company_id to /purchaseOrders/modify', async () => {
+	const ctx = fakeContext([ok({ purchase_order_id: 20 })], undefined, {
+		companyId: '30',
+		additionalFields: {
+			currency: 'USD',
+		},
+		linesUi: {
+			lineValues: [
+				{
+					productId: '7',
+					amount: 10,
+					price: 15,
+					comment: 'PO line item',
+				},
+			],
+		},
+		customFieldsUi: {},
+	});
+	await purchaseOrderHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/purchaseOrders/modify');
+	assert.equal(options.body.request.company_id, 30);
+	assert.equal(options.body.request.currency, 'USD');
+	assert.equal(options.body.request.lines.length, 1);
+	assert.equal(options.body.request.lines[0].product_id, 7);
+});
+
+test('Purchase Order getPdf: calls /purchaseOrders/pdf/:id', async () => {
+	const ctx = fakeContext([ok({ pdf_link: 'https://example.com/po.pdf' })], undefined, {
+		purchaseOrderId: '20',
+		templateId: '9',
+	});
+	const res = await purchaseOrderHandler.call(ctx, 'getPdf', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/purchaseOrders/pdf/20');
+	assert.equal(options.body.request.template_id, 9);
+	assert.equal(res.pdf_link, 'https://example.com/po.pdf');
+});
+
+test('Bill create: sends lines and company_id to /bills/modify', async () => {
+	const ctx = fakeContext([ok({ bill_id: 50 })], undefined, {
+		companyId: '40',
+		additionalFields: {
+			currency: 'EUR',
+			dateofpayment: '2026-10-01',
+		},
+		linesUi: {
+			lineValues: [
+				{
+					productId: '1',
+					amount: 2,
+					price: 100,
+					comment: 'Bill line item',
+				},
+			],
+		},
+		customFieldsUi: {},
+	});
+	await billHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/bills/modify');
+	assert.equal(options.body.request.company_id, 40);
+	assert.equal(options.body.request.currency, 'EUR');
+	assert.equal(options.body.request.dateofpayment, '2026-10-01');
+	assert.equal(options.body.request.lines.length, 1);
+	assert.equal(options.body.request.lines[0].product_id, 1);
+});
+
+test('Bill getAll: calls /bills/list with status and date range', async () => {
+	const ctx = fakeContext([ok([{ id: 50 }])], undefined, {
+		filters: {
+			status: 'unpaid',
+			dateFrom: '2026-10-01',
+			dateTo: '2026-10-31',
+		},
+		returnAll: true,
+		options: {},
+	});
+	const result = await billHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/bills/list');
+	assert.equal(options.body.filter.status, 'unpaid');
+	assert.deepEqual(options.body.filter.date, {
+		from_date: '2026-10-01',
+		to_date: '2026-10-31',
+	});
+	assert.equal(result.length, 1);
+});
+
+test('Expense create: sends comment and sum to /expenses/modify', async () => {
+	const ctx = fakeContext([ok({ expense_id: 60 })], undefined, {
+		companyId: '55',
+		additionalFields: {
+			comment: 'Travel expense',
+			currency: 'USD',
+			isChargeable: true,
+		},
+		linesUi: {},
+		customFieldsUi: {},
+	});
+	await expenseHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/expenses/modify');
+	assert.equal(options.body.request.company_id, 55);
+	assert.equal(options.body.request.comment, 'Travel expense');
+	assert.equal(options.body.request.currency, 'USD');
+	assert.equal(options.body.request.is_chargeable, 1);
+});
+
+test('Expense getAll: calls /expenses/list with company_id in filter', async () => {
+	const ctx = fakeContext([ok([{ id: 60 }])], undefined, {
+		filters: {
+			companyId: '55',
+		},
+		returnAll: true,
+		options: {},
+	});
+	const result = await expenseHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/expenses/list');
+	assert.equal(options.body.filter.company_id, 55);
+	assert.equal(result.length, 1);
+});
+
+test('Calendar Event create: sends event_name and dates to /calendar/modify', async () => {
+	const ctx = fakeContext([ok({ event_id: 70 })], undefined, {
+		eventName: 'Client Strategy Meeting',
+		additionalFields: {
+			startDatetime: '2026-10-10T10:00:00Z',
+			endDatetime: '2026-10-10T11:00:00Z',
+			status: 'busy',
+			fullDayEvent: false,
+		},
+		customFieldsUi: {},
+	});
+	await calendarEventHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/calendar/modify');
+	assert.equal(options.body.request.event_name, 'Client Strategy Meeting');
+	assert.equal(options.body.request.start_datetime, '2026-10-10T10:00:00Z');
+	assert.equal(options.body.request.end_datetime, '2026-10-10T11:00:00Z');
+	assert.equal(options.body.request.status, 'busy');
+	assert.equal(options.body.request.full_day_event, 0);
+});
+
+test('Calendar Event getAll: calls /calendar/list with status and date filter', async () => {
+	const ctx = fakeContext([ok([{ event_id: 70 }])], undefined, {
+		filters: {
+			status: 'busy',
+			startFrom: '2026-10-01',
+			startTo: '2026-10-31',
+		},
+		returnAll: true,
+		options: {},
+	});
+	const result = await calendarEventHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/calendar/list');
+	assert.equal(options.body.filter.status, 'busy');
+	assert.deepEqual(options.body.filter.start_datetime, {
+		from_date: '2026-10-01',
+		to_date: '2026-10-31',
+	});
+	assert.equal(result.length, 1);
+});
+
+test('User get: calls /users/view/:id', async () => {
+	const ctx = fakeContext([ok({ id: 12, firstname: 'Jane' })], undefined, {
+		userId: { mode: 'id', value: '12' },
+	});
+	const res = await userHandler.call(ctx, 'get', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/users/view/12');
+	assert.equal(res.id, 12);
+});
+
+test('User getAll: calls /users/list with optional status filter', async () => {
+	const ctx = fakeContext([ok([{ id: 12 }])], undefined, {
+		filters: { status: 'active' },
+		returnAll: true,
+		options: {},
+	});
+	const res = await userHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/users/list');
+	assert.equal(options.body.filter.status, 'active');
+	assert.equal(res.length, 1);
+});
+
+test('Role get: calls /roles/view/:id', async () => {
+	const ctx = fakeContext([ok({ id: 3, name: 'Developer' })], undefined, {
+		roleId: '3',
+	});
+	const res = await roleHandler.call(ctx, 'get', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/roles/view/3');
+	assert.equal(res.name, 'Developer');
+});
+
+test('Role getAll: calls /roles/list', async () => {
+	const ctx = fakeContext([ok([{ id: 3, name: 'Developer' }])], undefined, {
+		returnAll: true,
+		options: {},
+	});
+	const res = await roleHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/roles/list');
+	assert.equal(res.length, 1);
+});
+
+test('Status getAll: calls /statuses/list with module filter', async () => {
+	const ctx = fakeContext([ok([{ status_id: 'in_progress', module: 'tasks' }])], undefined, {
+		filters: { module: 'tasks' },
+		returnAll: true,
+		options: {},
+	});
+	const res = await statusHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/statuses/list');
+	assert.deepEqual(options.body.filter.module, ['tasks']);
+	assert.equal(res.length, 1);
+});
+
+test('Client Profile create: sends fields to /clientProfiles/modify', async () => {
+	const ctx = fakeContext([ok({ id: 8 })], undefined, {
+		name: 'Enterprise VIP',
+		additionalFields: {
+			currency: 'EUR',
+			discount: 15,
+			deadlineDays: 30,
+		},
+	});
+	await clientProfileHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/clientProfiles/modify');
+	assert.equal(options.body.request.name, 'Enterprise VIP');
+	assert.equal(options.body.request.currency, 'EUR');
+	assert.equal(options.body.request.discount, 15);
+	assert.equal(options.body.request.deadline_days, 30);
+});
+
+test('Client Profile delete: calls /clientProfiles/delete/:id', async () => {
+	const ctx = fakeContext([ok({ deleted: true })], undefined, {
+		clientProfileId: '8',
+	});
+	const res = await clientProfileHandler.call(ctx, 'delete', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/clientProfiles/delete/8');
+	assert.equal(res.deleted, true);
+});
+
+test('Trigger create: formats WebHook action and activities to /triggers/modify', async () => {
+	const ctx = fakeContext([ok({ id: 5 })], undefined, {
+		name: 'Task Webhook',
+		module: 'tasks',
+		urlToPost: 'https://example.com/webhook',
+		activities: ['create', 'modify'],
+		additionalFields: {
+			status: 'active',
+			isShared: true,
+		},
+	});
+	await triggerHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/triggers/modify');
+	assert.equal(options.body.request.name, 'Task Webhook');
+	assert.equal(options.body.request.module, 'tasks');
+	assert.equal(options.body.request.status, 'active');
+	assert.equal(options.body.request.is_shared, 1);
+	assert.deepEqual(options.body.request.actions, [
+		{
+			type: 'WebHook',
+			action_data: { urlToPost: 'https://example.com/webhook' },
+		},
+	]);
+	assert.deepEqual(options.body.request.activities, [
+		{ activity: 'create' },
+		{ activity: 'modify' },
+	]);
+});
+
+test('Trigger delete: calls /triggers/delete/:id', async () => {
+	const ctx = fakeContext([ok({ deleted: true })], undefined, {
+		triggerId: '5',
+	});
+	const res = await triggerHandler.call(ctx, 'delete', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/triggers/delete/5');
+	assert.equal(res.deleted, true);
+});

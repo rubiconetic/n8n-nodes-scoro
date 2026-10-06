@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-scoro",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "n8n community node for the Scoro API v2",
 	"license": "MIT",
 	"homepage": "https://github.com/rubiconetic/n8n-nodes-scoro#readme",

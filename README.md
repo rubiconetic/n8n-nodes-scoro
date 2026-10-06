@@ -8,7 +8,7 @@ This is an n8n community node. It lets you use **[Scoro](https://www.scoro.com/)
 
 [Installation](#installation-) • [Operations](#operations-) • [Credentials](#credentials-) • [Compatibility](#compatibility-) • [Resources](#resources-) • [Version history](#version-history-)
 
-> ⚠️ **Breaking Change Notice**: Version 1.0.0 is a complete rewrite targeting full Scoro API v2 compatibility. Existing saved credentials remain compatible, but workflows built using the 0.2.x node must be recreated. Endpoints from 0.2.x not covered as core resources (Calendar, Client Profile, Comment, Role, Status, User) can be called directly using the **API Request** resource.
+> ℹ️ **Notice**: Version 1.1.0 provides full Scoro API v2 compatibility across all core operations (including Bill, Calendar Event, Client Profile, Comment, Contact, Expense, Invoice, Order, Project, Purchase Order, Quote, Role, Status, Task, Time Entry, Trigger, and User), plus a generic **API Request** resource for any custom or specialized endpoints.
 
 ---
 
@@ -25,23 +25,33 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations ✨
 
-The **Scoro** node supports operations across core business resources, plus a generic API Request resource:
+The **Scoro** node supports operations across 17 first-class resources, plus a generic API Request resource:
 
-| Resource | Create | Delete | Get | Get Many | Update | Set Done | Generate PDF | Send |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Comment** | ✅ | ✅ | | ✅ | ✅ | | | |
-| **Contact** | ✅ | ✅ | ✅ | ✅ | ✅ | | | |
-| **Project** | ✅ | ✅ | ✅ | ✅ | ✅ | | | |
-| **Task** | ✅ | ✅ | ✅ | ✅ | ✅ | | | |
-| **Time Entry** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | | |
-| **Invoice** | ✅ | ✅ | ✅ | ✅ | ✅ | | ✅ | |
-| **Quote** | ✅ | ✅ | ✅ | ✅ | ✅ | | ✅ | |
-| **API Request** | | | | | | | | ✅ |
+| Resource           | Create | Delete | Get | Get Many | Update | Set Done | Generate PDF | Send |
+| :----------------- | :----: | :----: | :-: | :------: | :----: | :------: | :----------: | :--: |
+| **Bill**           |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Calendar Event** |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Client Profile** |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Comment**        |   ✅   |   ✅   |     |    ✅    |   ✅   |          |              |      |
+| **Contact**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Expense**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Invoice**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
+| **Order**          |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
+| **Project**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Purchase Order** |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
+| **Quote**          |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
+| **Role**           |        |        | ✅  |    ✅    |        |          |              |      |
+| **Status**         |        |        |     |    ✅    |        |          |              |      |
+| **Task**           |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |    ✅    |              |      |
+| **Time Entry**     |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |    ✅    |              |      |
+| **Trigger**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **User**           |        |        | ✅  |    ✅    |        |          |              |      |
+| **API Request**    |        |        |     |          |        |          |              |  ✅  |
 
 ### Operation Notes
 
-- **Generate PDF**: For Invoices and Quotes, the **Generate PDF** operation returns Scoro's response containing the direct download URL (`pdf_link`), creation timestamp, and template ID.
-- **Line Items Replacement**: When updating an Invoice or Quote with line items, Scoro replaces the entire line items collection. All lines to be kept must be included in the update request; any omitted lines will be deleted by Scoro.
+- **Generate PDF**: For Invoices, Orders, Purchase Orders, and Quotes, the **Generate PDF** operation returns Scoro's response containing the direct download URL (`pdf_link`), creation timestamp, and template ID.
+- **Line Items Replacement**: When updating a Bill, Expense, Invoice, Order, Purchase Order, or Quote with line items, Scoro replaces the entire line items collection. All lines to be kept must be included in the update request; any omitted lines will be deleted by Scoro.
 - **Custom Fields**: Create and Update operations support custom fields. Specify the field ID exactly as configured in Scoro, including the `c_` prefix (e.g. `c_account_tier`).
 
 ### Get Many Options
@@ -83,6 +93,7 @@ The **Scoro Trigger** node starts a workflow when a record changes in Scoro. Act
 ### Domain Verification
 
 Scoro only activates webhooks when the URL answers with HTTP 200 and its domain is verified:
+
 1. The trigger node automatically answers Scoro's initial handshake requests with HTTP 200.
 2. Complete domain verification by adding a DNS TXT record containing `scoro.txt` on your n8n host, or by serving a text file at `https://<n8n-host>/scoro.txt`. See [Verifying webhook URLs for automations](https://support.scoro.com/hc/en-us/articles/47029859916941-Verifying-webhook-URLs-for-automations).
 

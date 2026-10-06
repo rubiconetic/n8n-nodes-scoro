@@ -1,11 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-import {
-	listOptionsProperty,
-	listProperties,
-	locator,
-	modifiedDateFilters,
-} from './common';
+import { listOptionsProperty, listProperties, locator, modifiedDateFilters } from './common';
 
 export const commentOperations: INodeProperties[] = [
 	{
@@ -180,12 +175,7 @@ export const commentFields: INodeProperties[] = [
 			},
 		},
 		options: [
-			locator(
-				'Author',
-				'userId',
-				'searchUsers',
-				'The Scoro user authoring the comment update',
-			),
+			locator('Author', 'userId', 'searchUsers', 'The Scoro user authoring the comment update'),
 		],
 	},
 
@@ -235,12 +225,7 @@ export const commentFields: INodeProperties[] = [
 			},
 		},
 		options: [
-			locator(
-				'Author',
-				'userId',
-				'searchUsers',
-				'Only return comments written by this user',
-			),
+			locator('Author', 'userId', 'searchUsers', 'Only return comments written by this user'),
 			...modifiedDateFilters,
 		],
 	},
