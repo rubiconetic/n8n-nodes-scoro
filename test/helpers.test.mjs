@@ -2,8 +2,10 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import helpers from '../dist/nodes/Scoro/helpers.js';
 import transport from '../dist/nodes/Scoro/GenericFunctions.js';
+import { billHandler } from '../dist/nodes/Scoro/actions/bill.js';
 import { commentHandler } from '../dist/nodes/Scoro/actions/comment.js';
 import { contactHandler } from '../dist/nodes/Scoro/actions/contact.js';
+import { expenseHandler } from '../dist/nodes/Scoro/actions/expense.js';
 import { invoiceHandler } from '../dist/nodes/Scoro/actions/invoice.js';
 import { orderHandler } from '../dist/nodes/Scoro/actions/order.js';
 import { projectHandler } from '../dist/nodes/Scoro/actions/project.js';
@@ -561,4 +563,93 @@ test('Purchase Order getPdf: calls /purchaseOrders/pdf/:id', async () => {
 	assert.equal(options.url, 'https://acme.scoro.com/api/v2/purchaseOrders/pdf/20');
 	assert.equal(options.body.request.template_id, 9);
 	assert.equal(res.pdf_link, 'https://example.com/po.pdf');
+});
+
+test('Bill create: sends lines and company_id to /bills/modify', async () => {
+	const ctx = fakeContext([ok({ bill_id: 50 })], undefined, {
+		companyId: '40',
+		additionalFields: {
+			currency: 'EUR',
+			dateofpayment: '2026-10-01',
+		},
+		linesUi: {
+			lineValues: [
+				{
+					productId: '1',
+					amount: 2,
+					price: 100,
+					comment: 'Bill line item',
+				},
+			],
+		},
+		customFieldsUi: {},
+	});
+	await billHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/bills/modify');
+	assert.equal(options.body.request.company_id, 40);
+	assert.equal(options.body.request.currency, 'EUR');
+	assert.equal(options.body.request.dateofpayment, '2026-10-01');
+	assert.equal(options.body.request.lines.length, 1);
+	assert.equal(options.body.request.lines[0].product_id, 1);
+});
+
+test('Bill getAll: calls /bills/list with status and date range', async () => {
+	const ctx = fakeContext([ok([{ id: 50 }])], undefined, {
+		filters: {
+			status: 'unpaid',
+			dateFrom: '2026-10-01',
+			dateTo: '2026-10-31',
+		},
+		returnAll: true,
+		options: {},
+	});
+	const result = await billHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/bills/list');
+	assert.equal(options.body.filter.status, 'unpaid');
+	assert.deepEqual(options.body.filter.date, {
+		from_date: '2026-10-01',
+		to_date: '2026-10-31',
+	});
+	assert.equal(result.length, 1);
+});
+
+test('Expense create: sends comment and sum to /expenses/modify', async () => {
+	const ctx = fakeContext([ok({ expense_id: 60 })], undefined, {
+		companyId: '55',
+		additionalFields: {
+			comment: 'Travel expense',
+			currency: 'USD',
+			isChargeable: true,
+		},
+		linesUi: {},
+		customFieldsUi: {},
+	});
+	await expenseHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/expenses/modify');
+	assert.equal(options.body.request.company_id, 55);
+	assert.equal(options.body.request.comment, 'Travel expense');
+	assert.equal(options.body.request.currency, 'USD');
+	assert.equal(options.body.request.is_chargeable, 1);
+});
+
+test('Expense getAll: calls /expenses/list with company_id in filter', async () => {
+	const ctx = fakeContext([ok([{ id: 60 }])], undefined, {
+		filters: {
+			companyId: '55',
+		},
+		returnAll: true,
+		options: {},
+	});
+	const result = await expenseHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/expenses/list');
+	assert.equal(options.body.filter.company_id, 55);
+	assert.equal(result.length, 1);
 });

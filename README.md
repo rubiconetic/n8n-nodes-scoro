@@ -29,8 +29,10 @@ The **Scoro** node supports operations across core business resources, plus a ge
 
 | Resource           | Create | Delete | Get | Get Many | Update | Set Done | Generate PDF | Send |
 | :----------------- | :----: | :----: | :-: | :------: | :----: | :------: | :----------: | :--: |
+| **Bill**           |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
 | **Comment**        |   ✅   |   ✅   |     |    ✅    |   ✅   |          |              |      |
 | **Contact**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Expense**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
 | **Invoice**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
 | **Order**          |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
 | **Project**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
@@ -43,7 +45,7 @@ The **Scoro** node supports operations across core business resources, plus a ge
 ### Operation Notes
 
 - **Generate PDF**: For Invoices, Orders, Purchase Orders, and Quotes, the **Generate PDF** operation returns Scoro's response containing the direct download URL (`pdf_link`), creation timestamp, and template ID.
-- **Line Items Replacement**: When updating an Invoice, Order, Purchase Order, or Quote with line items, Scoro replaces the entire line items collection. All lines to be kept must be included in the update request; any omitted lines will be deleted by Scoro.
+- **Line Items Replacement**: When updating a Bill, Expense, Invoice, Order, Purchase Order, or Quote with line items, Scoro replaces the entire line items collection. All lines to be kept must be included in the update request; any omitted lines will be deleted by Scoro.
 - **Custom Fields**: Create and Update operations support custom fields. Specify the field ID exactly as configured in Scoro, including the `c_` prefix (e.g. `c_account_tier`).
 
 ### Get Many Options

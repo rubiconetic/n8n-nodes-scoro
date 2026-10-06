@@ -10,8 +10,10 @@ import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workf
 
 import type { ResourceHandler } from './actions/common';
 import { apiRequestHandler } from './actions/apiRequest';
+import { billHandler } from './actions/bill';
 import { commentHandler } from './actions/comment';
 import { contactHandler } from './actions/contact';
+import { expenseHandler } from './actions/expense';
 import { invoiceHandler } from './actions/invoice';
 import { orderHandler } from './actions/order';
 import { projectHandler } from './actions/project';
@@ -20,8 +22,10 @@ import { quoteHandler } from './actions/quote';
 import { taskHandler } from './actions/task';
 import { timeEntryHandler } from './actions/timeEntry';
 import { apiRequestFields, apiRequestOperations } from './descriptions/ApiRequestDescription';
+import { billFields, billOperations } from './descriptions/BillDescription';
 import { commentFields, commentOperations } from './descriptions/CommentDescription';
 import { contactFields, contactOperations } from './descriptions/ContactDescription';
+import { expenseFields, expenseOperations } from './descriptions/ExpenseDescription';
 import { invoiceFields, invoiceOperations } from './descriptions/InvoiceDescription';
 import { orderFields, orderOperations } from './descriptions/OrderDescription';
 import { projectFields, projectOperations } from './descriptions/ProjectDescription';
@@ -38,8 +42,10 @@ import { searchContacts, searchProjects, searchTasks, searchUsers } from './list
 // Register one handler per resource. A resource that is missing here fails with a clear error.
 const handlers: Record<string, ResourceHandler> = {
 	apiRequest: apiRequestHandler,
+	bill: billHandler,
 	comment: commentHandler,
 	contact: contactHandler,
+	expense: expenseHandler,
 	invoice: invoiceHandler,
 	order: orderHandler,
 	project: projectHandler,
@@ -80,7 +86,7 @@ export class Scoro implements INodeType {
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description:
-			'Manage comments, contacts, invoices, orders, projects, purchase orders, quotes, tasks and time entries in Scoro',
+			'Manage bills, comments, contacts, expenses, invoices, orders, projects, purchase orders, quotes, tasks and time entries in Scoro',
 		defaults: {
 			name: 'Scoro',
 		},
@@ -105,12 +111,20 @@ export class Scoro implements INodeType {
 						value: 'apiRequest',
 					},
 					{
+						name: 'Bill',
+						value: 'bill',
+					},
+					{
 						name: 'Comment',
 						value: 'comment',
 					},
 					{
 						name: 'Contact',
 						value: 'contact',
+					},
+					{
+						name: 'Expense',
+						value: 'expense',
 					},
 					{
 						name: 'Invoice',
@@ -145,10 +159,14 @@ export class Scoro implements INodeType {
 			},
 			...apiRequestOperations,
 			...apiRequestFields,
+			...billOperations,
+			...billFields,
 			...commentOperations,
 			...commentFields,
 			...contactOperations,
 			...contactFields,
+			...expenseOperations,
+			...expenseFields,
 			...invoiceOperations,
 			...invoiceFields,
 			...orderOperations,
