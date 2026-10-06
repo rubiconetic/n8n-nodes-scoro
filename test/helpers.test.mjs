@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import helpers from '../dist/nodes/Scoro/helpers.js';
 import transport from '../dist/nodes/Scoro/GenericFunctions.js';
+import { commentHandler } from '../dist/nodes/Scoro/actions/comment.js';
 import { contactHandler } from '../dist/nodes/Scoro/actions/contact.js';
 import { invoiceHandler } from '../dist/nodes/Scoro/actions/invoice.js';
 import { projectHandler } from '../dist/nodes/Scoro/actions/project.js';
@@ -386,3 +387,66 @@ test('API Request whose bodyJson contains apiKey: the sent body has no apiKey', 
 	assert.equal('apiKey' in options.body, false);
 	assert.equal(options.body.detailed_response, true);
 });
+
+test('Comment create: body has module, object_id, comment and user_id', async () => {
+	const ctx = fakeContext([ok({ comment_id: 42 })], undefined, {
+		module: 'tasks',
+		objectId: '10',
+		comment: 'Work in progress',
+		additionalFields: {
+			userId: '3',
+		},
+	});
+	await commentHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/comments/modify');
+	assert.equal(options.body.request.module, 'tasks');
+	assert.equal(options.body.request.object_id, 10);
+	assert.equal(options.body.request.comment, 'Work in progress');
+	assert.equal(options.body.request.user_id, 3);
+});
+
+test('Comment update: url is /comments/modify/:id with updated comment', async () => {
+	const ctx = fakeContext([ok({ comment_id: 42 })], undefined, {
+		commentId: '42',
+		comment: 'Updated content',
+		updateFields: {},
+	});
+	await commentHandler.call(ctx, 'update', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/comments/modify/42');
+	assert.equal(options.body.request.comment, 'Updated content');
+});
+
+test('Comment delete: url is /comments/delete/:id', async () => {
+	const ctx = fakeContext([ok({ deleted: true })], undefined, {
+		commentId: '42',
+	});
+	const result = await commentHandler.call(ctx, 'delete', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/comments/delete/42');
+	assert.deepEqual(result, { deleted: true, id: 42 });
+});
+
+test('Comment getAll: calls /comments/list with module and object_id in filter and request', async () => {
+	const ctx = fakeContext([ok([{ comment_id: 1, comment: 'First' }])], undefined, {
+		module: 'projects',
+		objectId: '99',
+		filters: {},
+		returnAll: true,
+		options: {},
+	});
+	const result = await commentHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/comments/list');
+	assert.equal(options.body.filter.module, 'projects');
+	assert.equal(options.body.filter.object_id, 99);
+	assert.equal(options.body.request.module, 'projects');
+	assert.equal(options.body.request.object_id, 99);
+	assert.equal(result.length, 1);
+});
+

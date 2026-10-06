@@ -10,6 +10,7 @@ import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workf
 
 import type { ResourceHandler } from './actions/common';
 import { apiRequestHandler } from './actions/apiRequest';
+import { commentHandler } from './actions/comment';
 import { contactHandler } from './actions/contact';
 import { invoiceHandler } from './actions/invoice';
 import { projectHandler } from './actions/project';
@@ -17,6 +18,7 @@ import { quoteHandler } from './actions/quote';
 import { taskHandler } from './actions/task';
 import { timeEntryHandler } from './actions/timeEntry';
 import { apiRequestFields, apiRequestOperations } from './descriptions/ApiRequestDescription';
+import { commentFields, commentOperations } from './descriptions/CommentDescription';
 import { contactFields, contactOperations } from './descriptions/ContactDescription';
 import { invoiceFields, invoiceOperations } from './descriptions/InvoiceDescription';
 import { projectFields, projectOperations } from './descriptions/ProjectDescription';
@@ -29,6 +31,7 @@ import { searchContacts, searchProjects, searchTasks, searchUsers } from './list
 // Register one handler per resource. A resource that is missing here fails with a clear error.
 const handlers: Record<string, ResourceHandler> = {
 	apiRequest: apiRequestHandler,
+	comment: commentHandler,
 	contact: contactHandler,
 	invoice: invoiceHandler,
 	project: projectHandler,
@@ -67,7 +70,7 @@ export class Scoro implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Manage contacts, projects, tasks, time entries, invoices and quotes in Scoro',
+		description: 'Manage comments, contacts, projects, tasks, time entries, invoices and quotes in Scoro',
 		defaults: {
 			name: 'Scoro',
 		},
@@ -90,6 +93,10 @@ export class Scoro implements INodeType {
 					{
 						name: 'API Request',
 						value: 'apiRequest',
+					},
+					{
+						name: 'Comment',
+						value: 'comment',
 					},
 					{
 						name: 'Contact',
@@ -120,6 +127,8 @@ export class Scoro implements INodeType {
 			},
 			...apiRequestOperations,
 			...apiRequestFields,
+			...commentOperations,
+			...commentFields,
 			...contactOperations,
 			...contactFields,
 			...invoiceOperations,
