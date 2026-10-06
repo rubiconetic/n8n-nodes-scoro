@@ -8,7 +8,7 @@ This is an n8n community node. It lets you use **[Scoro](https://www.scoro.com/)
 
 [Installation](#installation-) • [Operations](#operations-) • [Credentials](#credentials-) • [Compatibility](#compatibility-) • [Resources](#resources-) • [Version history](#version-history-)
 
-> ⚠️ **Breaking Change Notice**: Version 1.0.0 is a complete rewrite targeting full Scoro API v2 compatibility. Existing saved credentials remain compatible, but workflows built using the 0.2.x node must be recreated. Endpoints from 0.2.x not covered as core resources (Calendar, Client Profile, Comment, Role, Status, User) can be called directly using the **API Request** resource.
+> ℹ️ **Notice**: Version 1.1.0 provides full Scoro API v2 compatibility across all core operations (including Bill, Calendar Event, Client Profile, Comment, Contact, Expense, Invoice, Order, Project, Purchase Order, Quote, Role, Status, Task, Time Entry, Trigger, and User), plus a generic **API Request** resource for any custom or specialized endpoints.
 
 ---
 
@@ -25,12 +25,13 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations ✨
 
-The **Scoro** node supports operations across core business resources, plus a generic API Request resource:
+The **Scoro** node supports operations across 17 first-class resources, plus a generic API Request resource:
 
 | Resource           | Create | Delete | Get | Get Many | Update | Set Done | Generate PDF | Send |
 | :----------------- | :----: | :----: | :-: | :------: | :----: | :------: | :----------: | :--: |
 | **Bill**           |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
 | **Calendar Event** |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Client Profile** |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
 | **Comment**        |   ✅   |   ✅   |     |    ✅    |   ✅   |          |              |      |
 | **Contact**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
 | **Expense**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
@@ -39,8 +40,12 @@ The **Scoro** node supports operations across core business resources, plus a ge
 | **Project**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
 | **Purchase Order** |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
 | **Quote**          |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
+| **Role**           |        |        | ✅  |    ✅    |        |          |              |      |
+| **Status**         |        |        |     |    ✅    |        |          |              |      |
 | **Task**           |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |    ✅    |              |      |
 | **Time Entry**     |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |    ✅    |              |      |
+| **Trigger**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **User**           |        |        | ✅  |    ✅    |        |          |              |      |
 | **API Request**    |        |        |     |          |        |          |              |  ✅  |
 
 ### Operation Notes

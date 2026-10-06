@@ -12,6 +12,7 @@ import type { ResourceHandler } from './actions/common';
 import { apiRequestHandler } from './actions/apiRequest';
 import { billHandler } from './actions/bill';
 import { calendarEventHandler } from './actions/calendarEvent';
+import { clientProfileHandler } from './actions/clientProfile';
 import { commentHandler } from './actions/comment';
 import { contactHandler } from './actions/contact';
 import { expenseHandler } from './actions/expense';
@@ -20,14 +21,22 @@ import { orderHandler } from './actions/order';
 import { projectHandler } from './actions/project';
 import { purchaseOrderHandler } from './actions/purchaseOrder';
 import { quoteHandler } from './actions/quote';
+import { roleHandler } from './actions/role';
+import { statusHandler } from './actions/status';
 import { taskHandler } from './actions/task';
 import { timeEntryHandler } from './actions/timeEntry';
+import { triggerHandler } from './actions/trigger';
+import { userHandler } from './actions/user';
 import { apiRequestFields, apiRequestOperations } from './descriptions/ApiRequestDescription';
 import { billFields, billOperations } from './descriptions/BillDescription';
 import {
 	calendarEventFields,
 	calendarEventOperations,
 } from './descriptions/CalendarEventDescription';
+import {
+	clientProfileFields,
+	clientProfileOperations,
+} from './descriptions/ClientProfileDescription';
 import { commentFields, commentOperations } from './descriptions/CommentDescription';
 import { contactFields, contactOperations } from './descriptions/ContactDescription';
 import { expenseFields, expenseOperations } from './descriptions/ExpenseDescription';
@@ -39,8 +48,12 @@ import {
 	purchaseOrderOperations,
 } from './descriptions/PurchaseOrderDescription';
 import { quoteFields, quoteOperations } from './descriptions/QuoteDescription';
+import { roleFields, roleOperations } from './descriptions/RoleDescription';
+import { statusFields, statusOperations } from './descriptions/StatusDescription';
 import { taskFields, taskOperations } from './descriptions/TaskDescription';
 import { timeEntryFields, timeEntryOperations } from './descriptions/TimeEntryDescription';
+import { triggerFields, triggerOperations } from './descriptions/TriggerDescription';
+import { userFields, userOperations } from './descriptions/UserDescription';
 import { scoroApiRequest, scoroApiRequestAllItems } from './GenericFunctions';
 import { searchContacts, searchProjects, searchTasks, searchUsers } from './listSearch';
 
@@ -49,6 +62,7 @@ const handlers: Record<string, ResourceHandler> = {
 	apiRequest: apiRequestHandler,
 	bill: billHandler,
 	calendarEvent: calendarEventHandler,
+	clientProfile: clientProfileHandler,
 	comment: commentHandler,
 	contact: contactHandler,
 	expense: expenseHandler,
@@ -57,8 +71,12 @@ const handlers: Record<string, ResourceHandler> = {
 	project: projectHandler,
 	purchaseOrder: purchaseOrderHandler,
 	quote: quoteHandler,
+	role: roleHandler,
+	status: statusHandler,
 	task: taskHandler,
 	timeEntry: timeEntryHandler,
+	trigger: triggerHandler,
+	user: userHandler,
 };
 
 async function loadStatuses(
@@ -92,7 +110,7 @@ export class Scoro implements INodeType {
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description:
-			'Manage bills, calendar events, comments, contacts, expenses, invoices, orders, projects, purchase orders, quotes, tasks and time entries in Scoro',
+			'Manage bills, calendar events, client profiles, comments, contacts, expenses, invoices, orders, projects, purchase orders, quotes, roles, statuses, tasks, time entries, triggers, and users in Scoro',
 		defaults: {
 			name: 'Scoro',
 		},
@@ -123,6 +141,10 @@ export class Scoro implements INodeType {
 					{
 						name: 'Calendar Event',
 						value: 'calendarEvent',
+					},
+					{
+						name: 'Client Profile',
+						value: 'clientProfile',
 					},
 					{
 						name: 'Comment',
@@ -157,12 +179,28 @@ export class Scoro implements INodeType {
 						value: 'quote',
 					},
 					{
+						name: 'Role',
+						value: 'role',
+					},
+					{
+						name: 'Status',
+						value: 'status',
+					},
+					{
 						name: 'Task',
 						value: 'task',
 					},
 					{
 						name: 'Time Entry',
 						value: 'timeEntry',
+					},
+					{
+						name: 'Trigger',
+						value: 'trigger',
+					},
+					{
+						name: 'User',
+						value: 'user',
 					},
 				],
 				default: 'contact',
@@ -173,6 +211,8 @@ export class Scoro implements INodeType {
 			...billFields,
 			...calendarEventOperations,
 			...calendarEventFields,
+			...clientProfileOperations,
+			...clientProfileFields,
 			...commentOperations,
 			...commentFields,
 			...contactOperations,
@@ -189,10 +229,18 @@ export class Scoro implements INodeType {
 			...purchaseOrderFields,
 			...quoteOperations,
 			...quoteFields,
+			...roleOperations,
+			...roleFields,
+			...statusOperations,
+			...statusFields,
 			...taskOperations,
 			...taskFields,
 			...timeEntryOperations,
 			...timeEntryFields,
+			...triggerOperations,
+			...triggerFields,
+			...userOperations,
+			...userFields,
 		],
 	};
 

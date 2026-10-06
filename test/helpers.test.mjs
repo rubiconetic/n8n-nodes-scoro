@@ -15,6 +15,11 @@ import { quoteHandler } from '../dist/nodes/Scoro/actions/quote.js';
 import { taskHandler } from '../dist/nodes/Scoro/actions/task.js';
 import { timeEntryHandler } from '../dist/nodes/Scoro/actions/timeEntry.js';
 import { apiRequestHandler } from '../dist/nodes/Scoro/actions/apiRequest.js';
+import { clientProfileHandler } from '../dist/nodes/Scoro/actions/clientProfile.js';
+import { roleHandler } from '../dist/nodes/Scoro/actions/role.js';
+import { statusHandler } from '../dist/nodes/Scoro/actions/status.js';
+import { triggerHandler } from '../dist/nodes/Scoro/actions/trigger.js';
+import { userHandler } from '../dist/nodes/Scoro/actions/user.js';
 
 const {
 	rlValue,
@@ -697,4 +702,138 @@ test('Calendar Event getAll: calls /calendar/list with status and date filter', 
 		to_date: '2026-10-31',
 	});
 	assert.equal(result.length, 1);
+});
+
+test('User get: calls /users/view/:id', async () => {
+	const ctx = fakeContext([ok({ id: 12, firstname: 'Jane' })], undefined, {
+		userId: { mode: 'id', value: '12' },
+	});
+	const res = await userHandler.call(ctx, 'get', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/users/view/12');
+	assert.equal(res.id, 12);
+});
+
+test('User getAll: calls /users/list with optional status filter', async () => {
+	const ctx = fakeContext([ok([{ id: 12 }])], undefined, {
+		filters: { status: 'active' },
+		returnAll: true,
+		options: {},
+	});
+	const res = await userHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/users/list');
+	assert.equal(options.body.filter.status, 'active');
+	assert.equal(res.length, 1);
+});
+
+test('Role get: calls /roles/view/:id', async () => {
+	const ctx = fakeContext([ok({ id: 3, name: 'Developer' })], undefined, {
+		roleId: '3',
+	});
+	const res = await roleHandler.call(ctx, 'get', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/roles/view/3');
+	assert.equal(res.name, 'Developer');
+});
+
+test('Role getAll: calls /roles/list', async () => {
+	const ctx = fakeContext([ok([{ id: 3, name: 'Developer' }])], undefined, {
+		returnAll: true,
+		options: {},
+	});
+	const res = await roleHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/roles/list');
+	assert.equal(res.length, 1);
+});
+
+test('Status getAll: calls /statuses/list with module filter', async () => {
+	const ctx = fakeContext([ok([{ status_id: 'in_progress', module: 'tasks' }])], undefined, {
+		filters: { module: 'tasks' },
+		returnAll: true,
+		options: {},
+	});
+	const res = await statusHandler.call(ctx, 'getAll', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/statuses/list');
+	assert.deepEqual(options.body.filter.module, ['tasks']);
+	assert.equal(res.length, 1);
+});
+
+test('Client Profile create: sends fields to /clientProfiles/modify', async () => {
+	const ctx = fakeContext([ok({ id: 8 })], undefined, {
+		name: 'Enterprise VIP',
+		additionalFields: {
+			currency: 'EUR',
+			discount: 15,
+			deadlineDays: 30,
+		},
+	});
+	await clientProfileHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/clientProfiles/modify');
+	assert.equal(options.body.request.name, 'Enterprise VIP');
+	assert.equal(options.body.request.currency, 'EUR');
+	assert.equal(options.body.request.discount, 15);
+	assert.equal(options.body.request.deadline_days, 30);
+});
+
+test('Client Profile delete: calls /clientProfiles/delete/:id', async () => {
+	const ctx = fakeContext([ok({ deleted: true })], undefined, {
+		clientProfileId: '8',
+	});
+	const res = await clientProfileHandler.call(ctx, 'delete', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/clientProfiles/delete/8');
+	assert.equal(res.deleted, true);
+});
+
+test('Trigger create: formats WebHook action and activities to /triggers/modify', async () => {
+	const ctx = fakeContext([ok({ id: 5 })], undefined, {
+		name: 'Task Webhook',
+		module: 'tasks',
+		urlToPost: 'https://example.com/webhook',
+		activities: ['create', 'modify'],
+		additionalFields: {
+			status: 'active',
+			isShared: true,
+		},
+	});
+	await triggerHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/triggers/modify');
+	assert.equal(options.body.request.name, 'Task Webhook');
+	assert.equal(options.body.request.module, 'tasks');
+	assert.equal(options.body.request.status, 'active');
+	assert.equal(options.body.request.is_shared, 1);
+	assert.deepEqual(options.body.request.actions, [
+		{
+			type: 'WebHook',
+			action_data: { urlToPost: 'https://example.com/webhook' },
+		},
+	]);
+	assert.deepEqual(options.body.request.activities, [
+		{ activity: 'create' },
+		{ activity: 'modify' },
+	]);
+});
+
+test('Trigger delete: calls /triggers/delete/:id', async () => {
+	const ctx = fakeContext([ok({ deleted: true })], undefined, {
+		triggerId: '5',
+	});
+	const res = await triggerHandler.call(ctx, 'delete', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/triggers/delete/5');
+	assert.equal(res.deleted, true);
 });
