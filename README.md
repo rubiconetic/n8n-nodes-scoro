@@ -27,16 +27,16 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 The **Scoro** node supports operations across core business resources, plus a generic API Request resource:
 
-| Resource | Create | Delete | Get | Get Many | Update | Set Done | Generate PDF | Send |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Comment** | ✅ | ✅ | | ✅ | ✅ | | | |
-| **Contact** | ✅ | ✅ | ✅ | ✅ | ✅ | | | |
-| **Project** | ✅ | ✅ | ✅ | ✅ | ✅ | | | |
-| **Task** | ✅ | ✅ | ✅ | ✅ | ✅ | | | |
-| **Time Entry** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | | |
-| **Invoice** | ✅ | ✅ | ✅ | ✅ | ✅ | | ✅ | |
-| **Quote** | ✅ | ✅ | ✅ | ✅ | ✅ | | ✅ | |
-| **API Request** | | | | | | | | ✅ |
+| Resource        | Create | Delete | Get | Get Many | Update | Set Done | Generate PDF | Send |
+| :-------------- | :----: | :----: | :-: | :------: | :----: | :------: | :----------: | :--: |
+| **Comment**     |   ✅   |   ✅   |     |    ✅    |   ✅   |          |              |      |
+| **Contact**     |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Project**     |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Task**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |    ✅    |              |      |
+| **Time Entry**  |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |    ✅    |              |      |
+| **Invoice**     |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
+| **Quote**       |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
+| **API Request** |        |        |     |          |        |          |              |  ✅  |
 
 ### Operation Notes
 
@@ -83,6 +83,7 @@ The **Scoro Trigger** node starts a workflow when a record changes in Scoro. Act
 ### Domain Verification
 
 Scoro only activates webhooks when the URL answers with HTTP 200 and its domain is verified:
+
 1. The trigger node automatically answers Scoro's initial handshake requests with HTTP 200.
 2. Complete domain verification by adding a DNS TXT record containing `scoro.txt` on your n8n host, or by serving a text file at `https://<n8n-host>/scoro.txt`. See [Verifying webhook URLs for automations](https://support.scoro.com/hc/en-us/articles/47029859916941-Verifying-webhook-URLs-for-automations).
 

@@ -346,6 +346,34 @@ test('Task create with relatedUsers: ["3", "4"]: related_users is [3, 4]', async
 	assert.deepEqual(options.body.request.related_users, [3, 4]);
 });
 
+test('Task create with parentId: body has parent_id', async () => {
+	const ctx = fakeContext([ok({ event_id: 2 })], undefined, {
+		eventName: 'Subtask test',
+		additionalFields: {
+			parentId: '42',
+		},
+		customFieldsUi: {},
+	});
+	await taskHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/tasks/modify');
+	assert.equal(options.body.request.parent_id, 42);
+});
+
+test('Task setDone: calls /tasks/setDone/:id with optional completed_datetime', async () => {
+	const ctx = fakeContext([ok({})], undefined, {
+		taskId: '99',
+		completedDatetime: '2026-10-05T19:00:00Z',
+	});
+	const res = await taskHandler.call(ctx, 'setDone', 0);
+	assert.deepEqual(res, { success: true, id: 99 });
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/tasks/setDone/99');
+	assert.equal(options.body.request.completed_datetime, '2026-10-05T19:00:00Z');
+});
+
 test('Project Get Many with Detailed Response on: per_page is 25 and detailed_response is true', async () => {
 	const ctx = fakeContext([ok([])], undefined, {
 		filters: {},
@@ -449,4 +477,3 @@ test('Comment getAll: calls /comments/list with module and object_id in filter a
 	assert.equal(options.body.request.object_id, 99);
 	assert.equal(result.length, 1);
 });
-

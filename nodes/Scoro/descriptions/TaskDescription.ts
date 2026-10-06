@@ -45,6 +45,12 @@ export const taskOperations: INodeProperties[] = [
 				action: 'Get many tasks',
 			},
 			{
+				name: 'Set Done',
+				value: 'setDone',
+				description: 'Mark a task as completed',
+				action: 'Mark a task as completed',
+			},
+			{
 				name: 'Update',
 				value: 'update',
 				description: 'Update an existing task',
@@ -115,6 +121,7 @@ const taskOptionalFields: INodeProperties[] = [
 		description: 'Whether the task is completed',
 	},
 	locator('Owner', 'ownerId', 'searchUsers', 'The owner of the task'),
+	locator('Parent Task', 'parentId', 'searchTasks', 'Parent task ID if this is a subtask'),
 	{
 		displayName: 'Planned Duration',
 		name: 'durationPlanned',
@@ -167,17 +174,30 @@ const taskOptionalFields: INodeProperties[] = [
 
 export const taskFields: INodeProperties[] = [
 	/* -------------------------------------------------------------------------- */
-	/*                            task:get / delete / update                      */
+	/*                   task:get / delete / setDone / update                     */
 	/* -------------------------------------------------------------------------- */
 	locator('Task', 'taskId', 'searchTasks', 'The task to operate on', {
 		required: true,
 		displayOptions: {
 			show: {
 				resource: ['task'],
-				operation: ['get', 'delete', 'update'],
+				operation: ['get', 'delete', 'setDone', 'update'],
 			},
 		},
 	}),
+	{
+		displayName: 'Completed Date',
+		name: 'completedDatetime',
+		type: 'dateTime',
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['task'],
+				operation: ['setDone'],
+			},
+		},
+		description: 'Task completion timestamp (defaults to current time if empty)',
+	},
 
 	/* -------------------------------------------------------------------------- */
 	/*                                 task:create                                */

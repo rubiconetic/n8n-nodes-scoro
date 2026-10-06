@@ -70,7 +70,8 @@ export class Scoro implements INodeType {
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Manage comments, contacts, projects, tasks, time entries, invoices and quotes in Scoro',
+		description:
+			'Manage comments, contacts, projects, tasks, time entries, invoices and quotes in Scoro',
 		defaults: {
 			name: 'Scoro',
 		},
