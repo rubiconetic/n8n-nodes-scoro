@@ -5,7 +5,10 @@ import transport from '../dist/nodes/Scoro/GenericFunctions.js';
 import { commentHandler } from '../dist/nodes/Scoro/actions/comment.js';
 import { contactHandler } from '../dist/nodes/Scoro/actions/contact.js';
 import { invoiceHandler } from '../dist/nodes/Scoro/actions/invoice.js';
+import { orderHandler } from '../dist/nodes/Scoro/actions/order.js';
 import { projectHandler } from '../dist/nodes/Scoro/actions/project.js';
+import { purchaseOrderHandler } from '../dist/nodes/Scoro/actions/purchaseOrder.js';
+import { quoteHandler } from '../dist/nodes/Scoro/actions/quote.js';
 import { taskHandler } from '../dist/nodes/Scoro/actions/task.js';
 import { timeEntryHandler } from '../dist/nodes/Scoro/actions/timeEntry.js';
 import { apiRequestHandler } from '../dist/nodes/Scoro/actions/apiRequest.js';
@@ -476,4 +479,86 @@ test('Comment getAll: calls /comments/list with module and object_id in filter a
 	assert.equal(options.body.request.module, 'projects');
 	assert.equal(options.body.request.object_id, 99);
 	assert.equal(result.length, 1);
+});
+
+test('Order create: sends lines and company_id to /orders/modify', async () => {
+	const ctx = fakeContext([ok({ order_id: 10 })], undefined, {
+		companyId: '15',
+		additionalFields: {
+			currency: 'EUR',
+		},
+		linesUi: {
+			lineValues: [
+				{
+					productId: '2',
+					amount: 3,
+					price: 50,
+					comment: 'Order line item',
+				},
+			],
+		},
+		customFieldsUi: {},
+	});
+	await orderHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/orders/modify');
+	assert.equal(options.body.request.company_id, 15);
+	assert.equal(options.body.request.currency, 'EUR');
+	assert.equal(options.body.request.lines.length, 1);
+	assert.equal(options.body.request.lines[0].product_id, 2);
+});
+
+test('Order getPdf: calls /orders/pdf/:id', async () => {
+	const ctx = fakeContext([ok({ pdf_link: 'https://example.com/order.pdf' })], undefined, {
+		orderId: '10',
+		templateId: '5',
+	});
+	const res = await orderHandler.call(ctx, 'getPdf', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/orders/pdf/10');
+	assert.equal(options.body.request.template_id, 5);
+	assert.equal(res.pdf_link, 'https://example.com/order.pdf');
+});
+
+test('Purchase Order create: sends lines and company_id to /purchaseOrders/modify', async () => {
+	const ctx = fakeContext([ok({ purchase_order_id: 20 })], undefined, {
+		companyId: '30',
+		additionalFields: {
+			currency: 'USD',
+		},
+		linesUi: {
+			lineValues: [
+				{
+					productId: '7',
+					amount: 10,
+					price: 15,
+					comment: 'PO line item',
+				},
+			],
+		},
+		customFieldsUi: {},
+	});
+	await purchaseOrderHandler.call(ctx, 'create', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/purchaseOrders/modify');
+	assert.equal(options.body.request.company_id, 30);
+	assert.equal(options.body.request.currency, 'USD');
+	assert.equal(options.body.request.lines.length, 1);
+	assert.equal(options.body.request.lines[0].product_id, 7);
+});
+
+test('Purchase Order getPdf: calls /purchaseOrders/pdf/:id', async () => {
+	const ctx = fakeContext([ok({ pdf_link: 'https://example.com/po.pdf' })], undefined, {
+		purchaseOrderId: '20',
+		templateId: '9',
+	});
+	const res = await purchaseOrderHandler.call(ctx, 'getPdf', 0);
+	assert.equal(ctx.calls.length, 1);
+	const { options } = ctx.calls[0];
+	assert.equal(options.url, 'https://acme.scoro.com/api/v2/purchaseOrders/pdf/20');
+	assert.equal(options.body.request.template_id, 9);
+	assert.equal(res.pdf_link, 'https://example.com/po.pdf');
 });

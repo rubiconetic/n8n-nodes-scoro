@@ -13,7 +13,9 @@ import { apiRequestHandler } from './actions/apiRequest';
 import { commentHandler } from './actions/comment';
 import { contactHandler } from './actions/contact';
 import { invoiceHandler } from './actions/invoice';
+import { orderHandler } from './actions/order';
 import { projectHandler } from './actions/project';
+import { purchaseOrderHandler } from './actions/purchaseOrder';
 import { quoteHandler } from './actions/quote';
 import { taskHandler } from './actions/task';
 import { timeEntryHandler } from './actions/timeEntry';
@@ -21,7 +23,12 @@ import { apiRequestFields, apiRequestOperations } from './descriptions/ApiReques
 import { commentFields, commentOperations } from './descriptions/CommentDescription';
 import { contactFields, contactOperations } from './descriptions/ContactDescription';
 import { invoiceFields, invoiceOperations } from './descriptions/InvoiceDescription';
+import { orderFields, orderOperations } from './descriptions/OrderDescription';
 import { projectFields, projectOperations } from './descriptions/ProjectDescription';
+import {
+	purchaseOrderFields,
+	purchaseOrderOperations,
+} from './descriptions/PurchaseOrderDescription';
 import { quoteFields, quoteOperations } from './descriptions/QuoteDescription';
 import { taskFields, taskOperations } from './descriptions/TaskDescription';
 import { timeEntryFields, timeEntryOperations } from './descriptions/TimeEntryDescription';
@@ -34,7 +41,9 @@ const handlers: Record<string, ResourceHandler> = {
 	comment: commentHandler,
 	contact: contactHandler,
 	invoice: invoiceHandler,
+	order: orderHandler,
 	project: projectHandler,
+	purchaseOrder: purchaseOrderHandler,
 	quote: quoteHandler,
 	task: taskHandler,
 	timeEntry: timeEntryHandler,
@@ -71,7 +80,7 @@ export class Scoro implements INodeType {
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description:
-			'Manage comments, contacts, projects, tasks, time entries, invoices and quotes in Scoro',
+			'Manage comments, contacts, invoices, orders, projects, purchase orders, quotes, tasks and time entries in Scoro',
 		defaults: {
 			name: 'Scoro',
 		},
@@ -108,8 +117,16 @@ export class Scoro implements INodeType {
 						value: 'invoice',
 					},
 					{
+						name: 'Order',
+						value: 'order',
+					},
+					{
 						name: 'Project',
 						value: 'project',
+					},
+					{
+						name: 'Purchase Order',
+						value: 'purchaseOrder',
 					},
 					{
 						name: 'Quote',
@@ -134,8 +151,12 @@ export class Scoro implements INodeType {
 			...contactFields,
 			...invoiceOperations,
 			...invoiceFields,
+			...orderOperations,
+			...orderFields,
 			...projectOperations,
 			...projectFields,
+			...purchaseOrderOperations,
+			...purchaseOrderFields,
 			...quoteOperations,
 			...quoteFields,
 			...taskOperations,

@@ -27,21 +27,23 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 The **Scoro** node supports operations across core business resources, plus a generic API Request resource:
 
-| Resource        | Create | Delete | Get | Get Many | Update | Set Done | Generate PDF | Send |
-| :-------------- | :----: | :----: | :-: | :------: | :----: | :------: | :----------: | :--: |
-| **Comment**     |   ✅   |   ✅   |     |    ✅    |   ✅   |          |              |      |
-| **Contact**     |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
-| **Project**     |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
-| **Task**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |    ✅    |              |      |
-| **Time Entry**  |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |    ✅    |              |      |
-| **Invoice**     |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
-| **Quote**       |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
-| **API Request** |        |        |     |          |        |          |              |  ✅  |
+| Resource           | Create | Delete | Get | Get Many | Update | Set Done | Generate PDF | Send |
+| :----------------- | :----: | :----: | :-: | :------: | :----: | :------: | :----------: | :--: |
+| **Comment**        |   ✅   |   ✅   |     |    ✅    |   ✅   |          |              |      |
+| **Contact**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Invoice**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
+| **Order**          |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
+| **Project**        |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |              |      |
+| **Purchase Order** |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
+| **Quote**          |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |          |      ✅      |      |
+| **Task**           |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |    ✅    |              |      |
+| **Time Entry**     |   ✅   |   ✅   | ✅  |    ✅    |   ✅   |    ✅    |              |      |
+| **API Request**    |        |        |     |          |        |          |              |  ✅  |
 
 ### Operation Notes
 
-- **Generate PDF**: For Invoices and Quotes, the **Generate PDF** operation returns Scoro's response containing the direct download URL (`pdf_link`), creation timestamp, and template ID.
-- **Line Items Replacement**: When updating an Invoice or Quote with line items, Scoro replaces the entire line items collection. All lines to be kept must be included in the update request; any omitted lines will be deleted by Scoro.
+- **Generate PDF**: For Invoices, Orders, Purchase Orders, and Quotes, the **Generate PDF** operation returns Scoro's response containing the direct download URL (`pdf_link`), creation timestamp, and template ID.
+- **Line Items Replacement**: When updating an Invoice, Order, Purchase Order, or Quote with line items, Scoro replaces the entire line items collection. All lines to be kept must be included in the update request; any omitted lines will be deleted by Scoro.
 - **Custom Fields**: Create and Update operations support custom fields. Specify the field ID exactly as configured in Scoro, including the `c_` prefix (e.g. `c_account_tier`).
 
 ### Get Many Options
