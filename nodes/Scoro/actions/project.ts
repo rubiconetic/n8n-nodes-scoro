@@ -11,7 +11,7 @@ import {
 	toDuration,
 	toId,
 } from '../helpers';
-import { getMany, toFlag } from './common';
+import { composeFilter, getMany, toFlag } from './common';
 
 function buildProjectRequest(fields: IDataObject): IDataObject {
 	const request = compact({
@@ -71,7 +71,7 @@ export async function projectHandler(
 
 	if (operation === 'getAll') {
 		const filters = this.getNodeParameter('filters', itemIndex, {}) as IDataObject;
-		const filter = compact({
+		const filter = composeFilter(filters, {
 			company_id: toId(filters.companyId),
 			manager_id: toId(filters.managerId),
 			project_name: filters.projectName,

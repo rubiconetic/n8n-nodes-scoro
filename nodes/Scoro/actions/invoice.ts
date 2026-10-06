@@ -3,7 +3,7 @@ import { NodeOperationError } from 'n8n-workflow';
 
 import { scoroApiRequest } from '../GenericFunctions';
 import { buildCustomFields, buildLines, compact, dateRange, toId } from '../helpers';
-import { buildDocumentRequest, getMany } from './common';
+import { buildDocumentRequest, composeFilter, getMany } from './common';
 
 export async function invoiceHandler(
 	this: IExecuteFunctions,
@@ -53,7 +53,7 @@ export async function invoiceHandler(
 
 	if (operation === 'getAll') {
 		const filters = this.getNodeParameter('filters', itemIndex, {}) as IDataObject;
-		const filter = compact({
+		const filter = composeFilter(filters, {
 			company_id: toId(filters.companyId),
 			project_id: toId(filters.projectId),
 			status: filters.status,

@@ -1,7 +1,9 @@
 import type { INodeProperties } from 'n8n-workflow';
 
 import {
+	customFieldsFilterOption,
 	customFieldsProperty,
+	customJsonFilterOption,
 	documentLinesProperty,
 	listOptionsProperty,
 	listProperties,
@@ -315,6 +317,8 @@ export const purchaseOrderFields: INodeProperties[] = [
 				default: 'pending',
 				description: 'Filter purchase orders by status',
 			},
+			customFieldsFilterOption,
+			customJsonFilterOption,
 		],
 	},
 	listOptionsProperty('purchaseOrder'),

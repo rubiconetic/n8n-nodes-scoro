@@ -1,6 +1,12 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-import { listOptionsProperty, listProperties, locator, modifiedDateFilters } from './common';
+import {
+	customJsonFilterOption,
+	listOptionsProperty,
+	listProperties,
+	locator,
+	modifiedDateFilters,
+} from './common';
 
 export const timeEntryOperations: INodeProperties[] = [
 	{
@@ -267,6 +273,7 @@ export const timeEntryFields: INodeProperties[] = [
 			...modifiedDateFilters,
 			locator('Task', 'eventId', 'searchTasks', 'Only return time entries for this task'),
 			locator('User', 'userId', 'searchUsers', 'Only return time entries for this user'),
+			customJsonFilterOption,
 		],
 	},
 	listOptionsProperty('timeEntry'),

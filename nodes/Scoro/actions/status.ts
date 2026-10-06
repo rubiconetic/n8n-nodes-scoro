@@ -1,8 +1,7 @@
 import type { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
-import { compact } from '../helpers';
-import { getMany } from './common';
+import { composeFilter, getMany } from './common';
 
 export async function statusHandler(
 	this: IExecuteFunctions,
@@ -11,7 +10,7 @@ export async function statusHandler(
 ): Promise<IDataObject | IDataObject[] | undefined> {
 	if (operation === 'getAll') {
 		const filters = this.getNodeParameter('filters', itemIndex, {}) as IDataObject;
-		const filter = compact({
+		const filter = composeFilter(filters, {
 			module: filters.module ? [filters.module] : undefined,
 		});
 

@@ -142,6 +142,51 @@ export const modifiedDateFilters: INodeProperties[] = [
 	},
 ];
 
+/** Custom field values for Get Many filters. Read with buildCustomFieldsFilter(). */
+export const customFieldsFilterOption: INodeProperties = {
+	displayName: 'Custom Fields',
+	name: 'customFieldsUi',
+	type: 'fixedCollection',
+	typeOptions: {
+		multipleValues: true,
+	},
+	placeholder: 'Add Custom Field Filter',
+	default: {},
+	options: [
+		{
+			name: 'field',
+			displayName: 'Custom Field',
+			values: [
+				{
+					displayName: 'Field ID',
+					name: 'id',
+					type: 'string',
+					default: '',
+					placeholder: 'e.g. c_account_tier',
+					description: 'The ID of the custom field as shown in Scoro, including the "c_" prefix',
+				},
+				{
+					displayName: 'Value',
+					name: 'value',
+					type: 'string',
+					default: '',
+					description: 'Value to filter by. Supports % wildcard.',
+				},
+			],
+		},
+	],
+};
+
+/** Additional custom filters formatted as JSON. Merged directly into Scoro filter object. */
+export const customJsonFilterOption: INodeProperties = {
+	displayName: 'Custom Filters (JSON)',
+	name: 'customFiltersJson',
+	type: 'json',
+	default: '',
+	placeholder: '{\n  "tag_ids": [123, 456]\n}',
+	description: 'Additional Scoro filter parameters as JSON. Merged directly into the filter object.',
+};
+
 /** Options shared by Get Many operations. Read with applyListOptions(). */
 export function listOptionsProperty(
 	resource: string,

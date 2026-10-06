@@ -1,7 +1,9 @@
 import type { INodeProperties } from 'n8n-workflow';
 
 import {
+	customFieldsFilterOption,
 	customFieldsProperty,
+	customJsonFilterOption,
 	documentLinesProperty,
 	listOptionsProperty,
 	listProperties,
@@ -301,6 +303,8 @@ export const billFields: INodeProperties[] = [
 				default: 'unpaid',
 				description: 'Filter bills by status',
 			},
+			customFieldsFilterOption,
+			customJsonFilterOption,
 		],
 	},
 	listOptionsProperty('bill'),

@@ -1,7 +1,13 @@
 import type { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 
 import { scoroApiRequestAllItems } from '../GenericFunctions';
-import { compact, toDateOnly, toId } from '../helpers';
+import {
+	buildCustomFieldsFilter,
+	compact,
+	parseCustomFilters,
+	toDateOnly,
+	toId,
+} from '../helpers';
 
 export type ResourceHandler = (
 	this: IExecuteFunctions,
@@ -34,6 +40,23 @@ export async function getMany(
 export function toFlag(value: unknown): number | undefined {
 	if (value === undefined || value === null || value === '') return undefined;
 	return value ? 1 : 0;
+}
+
+/** Composes standard filter fields with custom fields and raw custom JSON filters. */
+export function composeFilter(filters: IDataObject, standardFilter: IDataObject = {}): IDataObject {
+	const filter = compact(standardFilter);
+
+	const customFields = buildCustomFieldsFilter(filters.customFieldsUi);
+	if (customFields) {
+		filter.custom_fields = customFields;
+	}
+
+	const rawJson = parseCustomFilters(filters.customFiltersJson);
+	if (rawJson) {
+		Object.assign(filter, rawJson);
+	}
+
+	return filter;
 }
 
 /** Builds a Scoro document request body (shared by Invoice and Quote). */

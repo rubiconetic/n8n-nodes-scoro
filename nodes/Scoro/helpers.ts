@@ -94,3 +94,34 @@ export function buildLines(ui: unknown): IDataObject[] | undefined {
 	);
 	return lines.length > 0 ? lines : undefined;
 }
+
+/** fixedCollection { field: [{ id, value }] } -> Scoro filter.custom_fields object { id: value } */
+export function buildCustomFieldsFilter(ui: unknown): IDataObject | undefined {
+	const rows = ((ui as IDataObject | undefined)?.field as IDataObject[] | undefined) ?? [];
+	const filter: IDataObject = {};
+	for (const row of rows) {
+		if (row.id !== undefined && row.id !== '' && row.value !== undefined && row.value !== '') {
+			filter[String(row.id).trim()] = row.value;
+		}
+	}
+	return Object.keys(filter).length > 0 ? filter : undefined;
+}
+
+/** Parses a JSON string or object for custom/raw filter criteria. */
+export function parseCustomFilters(input: unknown): IDataObject | undefined {
+	if (!input) return undefined;
+	if (typeof input === 'object' && !Array.isArray(input)) return compact(input as IDataObject);
+	if (typeof input === 'string') {
+		const trimmed = input.trim();
+		if (!trimmed) return undefined;
+		try {
+			const parsed = JSON.parse(trimmed);
+			if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+				return compact(parsed as IDataObject);
+			}
+		} catch {
+			return undefined;
+		}
+	}
+	return undefined;
+}

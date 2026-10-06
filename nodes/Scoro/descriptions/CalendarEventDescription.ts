@@ -1,7 +1,9 @@
 import type { INodeProperties } from 'n8n-workflow';
 
 import {
+	customFieldsFilterOption,
 	customFieldsProperty,
+	customJsonFilterOption,
 	listOptionsProperty,
 	listProperties,
 	locator,
@@ -280,6 +282,8 @@ export const calendarEventFields: INodeProperties[] = [
 				default: 'busy',
 				description: 'Filter events by status',
 			},
+			customFieldsFilterOption,
+			customJsonFilterOption,
 		],
 	},
 	listOptionsProperty('calendarEvent'),

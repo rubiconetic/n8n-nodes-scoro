@@ -3,7 +3,7 @@ import { NodeOperationError } from 'n8n-workflow';
 
 import { scoroApiRequest } from '../GenericFunctions';
 import { compact, dateRange, toId } from '../helpers';
-import { getMany } from './common';
+import { composeFilter, getMany } from './common';
 
 export async function commentHandler(
 	this: IExecuteFunctions,
@@ -60,7 +60,7 @@ export async function commentHandler(
 		const objectId = this.getNodeParameter('objectId', itemIndex);
 		const filters = this.getNodeParameter('filters', itemIndex, {}) as IDataObject;
 
-		const filter = compact({
+		const filter = composeFilter(filters, {
 			module,
 			object_id: toId(objectId),
 			user_id: toId(filters.userId),

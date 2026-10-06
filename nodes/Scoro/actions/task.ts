@@ -3,7 +3,7 @@ import { NodeOperationError } from 'n8n-workflow';
 
 import { scoroApiRequest } from '../GenericFunctions';
 import { buildCustomFields, compact, dateRange, splitList, toDuration, toId } from '../helpers';
-import { getMany, toFlag } from './common';
+import { composeFilter, getMany, toFlag } from './common';
 
 function buildTaskRequest(fields: IDataObject): IDataObject {
 	const request = compact({
@@ -83,7 +83,7 @@ export async function taskHandler(
 
 	if (operation === 'getAll') {
 		const filters = this.getNodeParameter('filters', itemIndex, {}) as IDataObject;
-		const filter = compact({
+		const filter = composeFilter(filters, {
 			company_id: toId(filters.companyId),
 			datetime_due: dateRange(filters.dueFrom, filters.dueTo),
 			is_completed: toFlag(filters.isCompleted),

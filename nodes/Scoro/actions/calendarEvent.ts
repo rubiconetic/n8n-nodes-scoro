@@ -3,7 +3,7 @@ import { NodeOperationError } from 'n8n-workflow';
 
 import { scoroApiRequest } from '../GenericFunctions';
 import { buildCustomFields, compact, dateRange, toId } from '../helpers';
-import { getMany, toFlag } from './common';
+import { composeFilter, getMany, toFlag } from './common';
 
 function buildCalendarEventRequest(fields: IDataObject): IDataObject {
 	return compact({
@@ -62,7 +62,7 @@ export async function calendarEventHandler(
 
 	if (operation === 'getAll') {
 		const filters = this.getNodeParameter('filters', itemIndex, {}) as IDataObject;
-		const filter = compact({
+		const filter = composeFilter(filters, {
 			company_id: toId(filters.companyId),
 			owner_id: toId(filters.ownerId),
 			project_id: toId(filters.projectId),

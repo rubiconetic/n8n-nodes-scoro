@@ -3,7 +3,7 @@ import { NodeOperationError } from 'n8n-workflow';
 
 import { scoroApiRequest } from '../GenericFunctions';
 import { buildCustomFields, buildLines, compact, dateRange, toDateOnly, toId } from '../helpers';
-import { getMany, toFlag } from './common';
+import { composeFilter, getMany, toFlag } from './common';
 
 function buildBillRequest(fields: IDataObject): IDataObject {
 	return compact({
@@ -67,7 +67,7 @@ export async function billHandler(
 
 	if (operation === 'getAll') {
 		const filters = this.getNodeParameter('filters', itemIndex, {}) as IDataObject;
-		const filter = compact({
+		const filter = composeFilter(filters, {
 			company_id: toId(filters.companyId),
 			project_id: toId(filters.projectId),
 			status: filters.status,
