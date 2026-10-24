@@ -5,6 +5,7 @@ import {
 	customFieldsProperty,
 	customJsonFilterOption,
 	documentLinesProperty,
+	documentLinesUpdateNotice,
 	listOptionsProperty,
 	listProperties,
 	locator,
@@ -173,33 +174,29 @@ export const quoteFields: INodeProperties[] = [
 	/* -------------------------------------------------------------------------- */
 	/*                          quote:get / delete / update / getPdf              */
 	/* -------------------------------------------------------------------------- */
-	{
-		displayName: 'Quote ID',
-		name: 'quoteId',
-		type: 'string',
+	locator('Quote', 'quoteId', 'searchQuotes', 'The quote to operate on', {
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['quote'],
 				operation: ['get', 'delete', 'update', 'getPdf'],
 			},
 		},
-		description: 'The unique ID of the quote',
-	},
-	{
-		displayName: 'Template ID',
-		name: 'templateId',
-		type: 'string',
-		default: '',
-		displayOptions: {
-			show: {
-				resource: ['quote'],
-				operation: ['getPdf'],
+	}),
+	locator(
+		'Template',
+		'templateId',
+		'searchPdfTemplates',
+		'The PDF template to use (leave empty to use the default template)',
+		{
+			displayOptions: {
+				show: {
+					resource: ['quote'],
+					operation: ['getPdf'],
+				},
 			},
 		},
-		description: 'The ID of the PDF template to use',
-	},
+	),
 
 	/* -------------------------------------------------------------------------- */
 	/*                                 quote:create                               */
@@ -213,6 +210,7 @@ export const quoteFields: INodeProperties[] = [
 			},
 		},
 	}),
+	documentLinesUpdateNotice('quote'),
 	documentLinesProperty('quote'),
 	{
 		displayName: 'Additional Fields',

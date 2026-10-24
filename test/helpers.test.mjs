@@ -20,6 +20,8 @@ import { roleHandler } from '../dist/nodes/Scoro/actions/role.js';
 import { statusHandler } from '../dist/nodes/Scoro/actions/status.js';
 import { triggerHandler } from '../dist/nodes/Scoro/actions/trigger.js';
 import { userHandler } from '../dist/nodes/Scoro/actions/user.js';
+import listSearch from '../dist/nodes/Scoro/listSearch.js';
+import { ScoroTrigger } from '../dist/nodes/Scoro/ScoroTrigger.node.js';
 
 const {
 	rlValue,
@@ -129,10 +131,15 @@ test('helpers', () => {
 		buildCustomFields({
 			field: [
 				{ id: 'c_x', value: 'v' },
+				{ id: { __rl: true, mode: 'list', value: 'c_y' }, value: 'w' },
 				{ id: '', value: 'skip' },
+				{ id: { __rl: true, mode: 'list', value: '' }, value: 'skip' },
 			],
 		}),
-		[{ id: 'c_x', value: 'v' }],
+		[
+			{ id: 'c_x', value: 'v' },
+			{ id: 'c_y', value: 'w' },
+		],
 	);
 	assert.equal(buildCustomFields({}), undefined);
 	assert.deepEqual(
@@ -143,7 +150,7 @@ test('helpers', () => {
 					amount: 2,
 					price: 0,
 					vat: '',
-					productId: '5',
+					productId: { __rl: true, mode: 'list', value: 5 },
 					unit: '',
 					discount: '',
 					id: '',
@@ -427,13 +434,14 @@ test('API Request whose bodyJson contains apiKey: the sent body has no apiKey', 
 	assert.equal(options.body.detailed_response, true);
 });
 
-test('Comment create: body has module, object_id, comment and user_id', async () => {
+test('Comment create: body has module, object_id, comment, top-level user_id, and optional parent_id', async () => {
 	const ctx = fakeContext([ok({ comment_id: 42 })], undefined, {
 		module: 'tasks',
 		objectId: '10',
+		userId: { __rl: true, mode: 'list', value: 3 },
 		comment: 'Work in progress',
 		additionalFields: {
-			userId: '3',
+			parentId: '99',
 		},
 	});
 	await commentHandler.call(ctx, 'create', 0);
@@ -444,6 +452,7 @@ test('Comment create: body has module, object_id, comment and user_id', async ()
 	assert.equal(options.body.request.object_id, 10);
 	assert.equal(options.body.request.comment, 'Work in progress');
 	assert.equal(options.body.request.user_id, 3);
+	assert.equal(options.body.request.parent_id, 99);
 });
 
 test('Comment update: url is /comments/modify/:id with updated comment', async () => {
@@ -836,4 +845,82 @@ test('Trigger delete: calls /triggers/delete/:id', async () => {
 	const { options } = ctx.calls[0];
 	assert.equal(options.url, 'https://acme.scoro.com/api/v2/triggers/delete/5');
 	assert.equal(res.deleted, true);
+});
+
+test('searchUsers with filter searches across pages and finds users beyond page 1', async () => {
+	const page1 = Array.from({ length: 100 }, (_, i) => ({
+		id: i + 1,
+		full_name: `User ${i + 1}`,
+	}));
+	const page2 = [{ id: 101, full_name: 'Zara Target' }];
+	const ctx = fakeContext([ok(page1), ok(page2)]);
+	const result = await listSearch.searchUsers.call(ctx, 'zara');
+	assert.equal(ctx.calls.length, 2);
+	assert.deepEqual(result.results, [{ name: 'Zara Target', value: 101 }]);
+	assert.equal(result.paginationToken, undefined);
+});
+
+test('listSearch methods format document and entity labels and support filtering', async () => {
+	const ctx = fakeContext([
+		ok([{ id: 10, no: '1001', company_name: 'Acme Corp' }]),
+		ok([{ id: 20, no: '2001', quote_name: 'Website Redesign' }]),
+		ok([{ product_id: 30, code: 'DEV-01', name: 'Senior Developer' }]),
+		ok([{ id: 40, template_name: 'Standard PDF', template_type: 'invoices' }]),
+		ok([{ id: 'c_tier', name: 'Account Tier' }]),
+	]);
+
+	const invoices = await listSearch.searchInvoices.call(ctx);
+	assert.deepEqual(invoices.results, [{ name: '#1001 — Acme Corp', value: 10 }]);
+
+	const quotes = await listSearch.searchQuotes.call(ctx);
+	assert.deepEqual(quotes.results, [{ name: '#2001 — Website Redesign', value: 20 }]);
+
+	const products = await listSearch.searchProducts.call(ctx, 'Senior');
+	assert.deepEqual(products.results, [{ name: 'DEV-01 — Senior Developer', value: 30 }]);
+	assert.deepEqual(ctx.calls[2].options.body.filter, { name: 'Senior%' });
+
+	const templates = await listSearch.searchPdfTemplates.call(ctx);
+	assert.deepEqual(templates.results, [{ name: 'Standard PDF (invoices)', value: 40 }]);
+
+	const customFields = await listSearch.searchCustomFields.call(ctx);
+	assert.deepEqual(customFields.results, [{ name: 'Account Tier (c_tier)', value: 'c_tier' }]);
+});
+
+test('ScoroTrigger webhook resolves full record when resolveData is enabled', async () => {
+	const trigger = new ScoroTrigger();
+	const calls = [];
+	const webhookCtx = {
+		getWebhookName: () => 'default',
+		getBodyData: () => ({ module: 'companies', action: 'modify', entityId: 77 }),
+		getCredentials: async () => ({ baseUrl: 'acme', apiKey: 'k', companyAccountId: 'c' }),
+		getNode: () => ({
+			id: '1',
+			name: 'Scoro Trigger',
+			type: 'n8n-nodes-scoro.scoroTrigger',
+			typeVersion: 1,
+			position: [0, 0],
+			parameters: {},
+		}),
+		getNodeParameter: (name, fallback) => {
+			if (name === 'options') return { resolveData: true };
+			return fallback;
+		},
+		helpers: {
+			returnJsonArray: (data) => [{ json: data }],
+			async httpRequestWithAuthentication(credentialType, options) {
+				calls.push({ credentialType, options });
+				return ok({ contact_id: 77, name: 'Acme Ltd' });
+			},
+		},
+	};
+
+	const res = await trigger.webhook.call(webhookCtx);
+	assert.equal(calls.length, 1);
+	assert.equal(calls[0].options.url, 'https://acme.scoro.com/api/v2/contacts/view/77');
+	assert.deepEqual(res.workflowData[0][0].json, {
+		module: 'companies',
+		action: 'modify',
+		entityId: 77,
+		record: { contact_id: 77, name: 'Acme Ltd' },
+	});
 });

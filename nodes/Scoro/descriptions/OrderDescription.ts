@@ -5,6 +5,7 @@ import {
 	customFieldsProperty,
 	customJsonFilterOption,
 	documentLinesProperty,
+	documentLinesUpdateNotice,
 	listOptionsProperty,
 	listProperties,
 	locator,
@@ -155,33 +156,29 @@ export const orderFields: INodeProperties[] = [
 	/* -------------------------------------------------------------------------- */
 	/*                          order:get / delete / update / getPdf              */
 	/* -------------------------------------------------------------------------- */
-	{
-		displayName: 'Order ID',
-		name: 'orderId',
-		type: 'string',
+	locator('Order', 'orderId', 'searchOrders', 'The order to operate on', {
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['order'],
 				operation: ['get', 'delete', 'update', 'getPdf'],
 			},
 		},
-		description: 'The unique ID of the order',
-	},
-	{
-		displayName: 'Template ID',
-		name: 'templateId',
-		type: 'string',
-		default: '',
-		displayOptions: {
-			show: {
-				resource: ['order'],
-				operation: ['getPdf'],
+	}),
+	locator(
+		'Template',
+		'templateId',
+		'searchPdfTemplates',
+		'The PDF template to use (leave empty to use the default template)',
+		{
+			displayOptions: {
+				show: {
+					resource: ['order'],
+					operation: ['getPdf'],
+				},
 			},
 		},
-		description: 'The ID of the PDF template to use',
-	},
+	),
 
 	/* -------------------------------------------------------------------------- */
 	/*                                order:create                                */
@@ -195,6 +192,7 @@ export const orderFields: INodeProperties[] = [
 			},
 		},
 	}),
+	documentLinesUpdateNotice('order'),
 	documentLinesProperty('order'),
 	{
 		displayName: 'Additional Fields',

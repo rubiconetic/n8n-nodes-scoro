@@ -5,9 +5,10 @@ import type {
 	INodeListSearchResult,
 } from 'n8n-workflow';
 
-import { scoroApiRequest } from './GenericFunctions';
+import { scoroApiRequest, scoroApiRequestAllItems } from './GenericFunctions';
 
 const PAGE_SIZE = 100;
+const CLIENT_SEARCH_LIMIT = 500;
 
 async function searchList(
 	context: ILoadOptionsFunctions,
@@ -29,12 +30,50 @@ async function searchList(
 	};
 }
 
+async function searchListClientFiltered(
+	context: ILoadOptionsFunctions,
+	endpoint: string,
+	filter: string | undefined,
+	paginationToken: string | undefined,
+	toItem: (row: IDataObject) => INodeListSearchItems,
+): Promise<INodeListSearchResult> {
+	const trimmed = filter?.trim();
+	if (!trimmed) {
+		return await searchList(context, endpoint, {}, paginationToken, toItem);
+	}
+	const rows = await scoroApiRequestAllItems.call(context, endpoint, {}, CLIENT_SEARCH_LIMIT);
+	const needle = trimmed.toLowerCase();
+	const results = rows
+		.map(toItem)
+		.filter(
+			(item) =>
+				item.name.toLowerCase().includes(needle) ||
+				String(item.value).toLowerCase().includes(needle),
+		);
+	return { results };
+}
+
+function formatDocumentName(
+	prefix: string,
+	row: IDataObject,
+	id: unknown,
+	title?: unknown,
+): string {
+	const no = row.no !== undefined && row.no !== null && row.no !== '' ? `#${row.no}` : '';
+	const label = String(title || row.company_name || row.description || '').trim();
+	if (no && label) return `${no} — ${label}`;
+	if (label) return label;
+	if (no) return `${prefix} ${no}`;
+	return `${prefix} ${id}`;
+}
+
 export async function searchUsers(
 	this: ILoadOptionsFunctions,
 	filter?: string,
 	paginationToken?: string,
 ): Promise<INodeListSearchResult> {
-	const result = await searchList(this, '/users/list', {}, paginationToken, (row) => ({
+	// users/list has no documented name filter, so fetch all and narrow client-side when filtering.
+	return await searchListClientFiltered(this, '/users/list', filter, paginationToken, (row) => ({
 		name: String(
 			row.full_name ||
 				`${row.firstname ?? ''} ${row.lastname ?? ''}`.trim() ||
@@ -43,12 +82,6 @@ export async function searchUsers(
 		),
 		value: row.id as number,
 	}));
-	// users/list has no documented name filter, so narrow the page client-side.
-	if (filter) {
-		const needle = filter.toLowerCase();
-		result.results = result.results.filter((item) => item.name.toLowerCase().includes(needle));
-	}
-	return result;
 }
 
 export async function searchContacts(
@@ -99,5 +132,218 @@ export async function searchTasks(
 			name: String(row.event_name || `Task ${row.event_id}`),
 			value: row.event_id as number,
 		}),
+	);
+}
+
+export async function searchCalendarEvents(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+	paginationToken?: string,
+): Promise<INodeListSearchResult> {
+	return await searchList(
+		this,
+		'/calendar/list',
+		filter ? { event_name: `${filter}%` } : {},
+		paginationToken,
+		(row) => {
+			const id = (row.event_id ?? row.id) as number;
+			return {
+				name: String(row.event_name || `Event ${id}`),
+				value: id,
+			};
+		},
+	);
+}
+
+export async function searchInvoices(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+	paginationToken?: string,
+): Promise<INodeListSearchResult> {
+	return await searchListClientFiltered(this, '/invoices/list', filter, paginationToken, (row) => {
+		const id = (row.id ?? row.invoice_id) as number;
+		return {
+			name: formatDocumentName('Invoice', row, id),
+			value: id,
+		};
+	});
+}
+
+export async function searchQuotes(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+	paginationToken?: string,
+): Promise<INodeListSearchResult> {
+	return await searchListClientFiltered(this, '/quotes/list', filter, paginationToken, (row) => {
+		const id = (row.id ?? row.quote_id) as number;
+		return {
+			name: formatDocumentName('Quote', row, id, row.quote_name),
+			value: id,
+		};
+	});
+}
+
+export async function searchOrders(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+	paginationToken?: string,
+): Promise<INodeListSearchResult> {
+	return await searchListClientFiltered(this, '/orders/list', filter, paginationToken, (row) => {
+		const id = (row.id ?? row.order_id) as number;
+		return {
+			name: formatDocumentName('Order', row, id),
+			value: id,
+		};
+	});
+}
+
+export async function searchPurchaseOrders(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+	paginationToken?: string,
+): Promise<INodeListSearchResult> {
+	return await searchListClientFiltered(
+		this,
+		'/purchaseOrders/list',
+		filter,
+		paginationToken,
+		(row) => {
+			const id = (row.id ?? row.purchase_order_id) as number;
+			return {
+				name: formatDocumentName('Purchase Order', row, id),
+				value: id,
+			};
+		},
+	);
+}
+
+export async function searchBills(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+	paginationToken?: string,
+): Promise<INodeListSearchResult> {
+	return await searchListClientFiltered(this, '/bills/list', filter, paginationToken, (row) => {
+		const id = (row.id ?? row.bill_id) as number;
+		return {
+			name: formatDocumentName('Bill', row, id),
+			value: id,
+		};
+	});
+}
+
+export async function searchExpenses(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+	paginationToken?: string,
+): Promise<INodeListSearchResult> {
+	return await searchListClientFiltered(this, '/expenses/list', filter, paginationToken, (row) => {
+		const id = (row.id ?? row.expense_id) as number;
+		return {
+			name: formatDocumentName('Expense', row, id, row.comment),
+			value: id,
+		};
+	});
+}
+
+export async function searchProducts(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+	paginationToken?: string,
+): Promise<INodeListSearchResult> {
+	return await searchList(
+		this,
+		'/products/list',
+		filter ? { name: `${filter}%` } : {},
+		paginationToken,
+		(row) => {
+			const id = (row.product_id ?? row.id) as number;
+			const name =
+				row.code && row.name
+					? `${row.code} — ${row.name}`
+					: String(row.name || row.code || `Product ${id}`);
+			return {
+				name,
+				value: id,
+			};
+		},
+	);
+}
+
+export async function searchClientProfiles(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+	paginationToken?: string,
+): Promise<INodeListSearchResult> {
+	return await searchListClientFiltered(
+		this,
+		'/clientProfiles/list',
+		filter,
+		paginationToken,
+		(row) => {
+			const id = (row.id ?? row.client_profile_id) as number;
+			return {
+				name: String(row.name || `Client Profile ${id}`),
+				value: id,
+			};
+		},
+	);
+}
+
+export async function searchRoles(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+	paginationToken?: string,
+): Promise<INodeListSearchResult> {
+	return await searchListClientFiltered(this, '/roles/list', filter, paginationToken, (row) => {
+		const id = (row.id ?? row.role_id) as number;
+		return {
+			name: String(row.name || `Role ${id}`),
+			value: id,
+		};
+	});
+}
+
+export async function searchPdfTemplates(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+	paginationToken?: string,
+): Promise<INodeListSearchResult> {
+	return await searchListClientFiltered(
+		this,
+		'/pdfTemplates/list',
+		filter,
+		paginationToken,
+		(row) => {
+			const id = row.id as number;
+			const name = row.template_name
+				? row.template_type
+					? `${row.template_name} (${row.template_type})`
+					: String(row.template_name)
+				: String(row.name || `Template ${id}`);
+			return {
+				name,
+				value: id,
+			};
+		},
+	);
+}
+
+export async function searchCustomFields(
+	this: ILoadOptionsFunctions,
+	filter?: string,
+	paginationToken?: string,
+): Promise<INodeListSearchResult> {
+	return await searchListClientFiltered(
+		this,
+		'/customFields/list',
+		filter,
+		paginationToken,
+		(row) => {
+			const id = String(row.id ?? row.field_id ?? '');
+			return {
+				name: row.name ? `${row.name} (${id})` : id,
+				value: id,
+			};
+		},
 	);
 }

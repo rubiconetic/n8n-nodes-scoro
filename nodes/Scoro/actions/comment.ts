@@ -19,12 +19,15 @@ export async function commentHandler(
 			itemIndex,
 			{},
 		) as IDataObject;
+		const userId =
+			toId(this.getNodeParameter('userId', itemIndex, '')) ?? toId(additionalFields.userId);
 
 		const request = compact({
 			module,
 			object_id: toId(objectId),
 			comment,
-			user_id: toId(additionalFields.userId),
+			user_id: userId,
+			parent_id: toId(additionalFields.parentId),
 		});
 
 		return await scoroApiRequest.call(this, '/comments/modify', {

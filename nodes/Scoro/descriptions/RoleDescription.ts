@@ -1,6 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-import { listOptionsProperty, listProperties } from './common';
+import { listOptionsProperty, listProperties, locator } from './common';
 
 export const roleOperations: INodeProperties[] = [
 	{
@@ -32,20 +32,15 @@ export const roleOperations: INodeProperties[] = [
 ];
 
 export const roleFields: INodeProperties[] = [
-	{
-		displayName: 'Role ID',
-		name: 'roleId',
-		type: 'string',
+	locator('Role', 'roleId', 'searchRoles', 'The role to retrieve', {
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['role'],
 				operation: ['get'],
 			},
 		},
-		description: 'The ID of the role to retrieve',
-	},
+	}),
 	...listProperties('role'),
 	listOptionsProperty('role'),
 ];

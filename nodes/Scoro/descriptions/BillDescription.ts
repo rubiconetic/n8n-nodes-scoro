@@ -5,6 +5,7 @@ import {
 	customFieldsProperty,
 	customJsonFilterOption,
 	documentLinesProperty,
+	documentLinesUpdateNotice,
 	listOptionsProperty,
 	listProperties,
 	locator,
@@ -150,13 +151,7 @@ const billOptionalFields: INodeProperties[] = [
 		description: 'Payment method',
 	},
 	locator('Project', 'projectId', 'searchProjects', 'The project this bill belongs to'),
-	{
-		displayName: 'Purchase Order ID',
-		name: 'purchaseOrderId',
-		type: 'string',
-		default: '',
-		description: 'Related purchase order ID',
-	},
+	locator('Purchase Order', 'purchaseOrderId', 'searchPurchaseOrders', 'Related purchase order'),
 	{
 		displayName: 'Reference Number',
 		name: 'referenceNo',
@@ -187,20 +182,15 @@ export const billFields: INodeProperties[] = [
 	/* -------------------------------------------------------------------------- */
 	/*                            bill:get / delete / update                      */
 	/* -------------------------------------------------------------------------- */
-	{
-		displayName: 'Bill ID',
-		name: 'billId',
-		type: 'string',
+	locator('Bill', 'billId', 'searchBills', 'The bill to operate on', {
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['bill'],
 				operation: ['get', 'delete', 'update'],
 			},
 		},
-		description: 'The unique ID of the bill',
-	},
+	}),
 
 	/* -------------------------------------------------------------------------- */
 	/*                                 bill:create                                */
@@ -214,6 +204,7 @@ export const billFields: INodeProperties[] = [
 			},
 		},
 	}),
+	documentLinesUpdateNotice('bill'),
 	documentLinesProperty('bill'),
 	{
 		displayName: 'Additional Fields',

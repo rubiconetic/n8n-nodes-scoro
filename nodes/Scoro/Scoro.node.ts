@@ -55,7 +55,24 @@ import { timeEntryFields, timeEntryOperations } from './descriptions/TimeEntryDe
 import { triggerFields, triggerOperations } from './descriptions/TriggerDescription';
 import { userFields, userOperations } from './descriptions/UserDescription';
 import { scoroApiRequest, scoroApiRequestAllItems } from './GenericFunctions';
-import { searchContacts, searchProjects, searchTasks, searchUsers } from './listSearch';
+import {
+	searchBills,
+	searchCalendarEvents,
+	searchClientProfiles,
+	searchContacts,
+	searchCustomFields,
+	searchExpenses,
+	searchInvoices,
+	searchOrders,
+	searchPdfTemplates,
+	searchProducts,
+	searchProjects,
+	searchPurchaseOrders,
+	searchQuotes,
+	searchRoles,
+	searchTasks,
+	searchUsers,
+} from './listSearch';
 
 // Register one handler per resource. A resource that is missing here fails with a clear error.
 const handlers: Record<string, ResourceHandler> = {
@@ -246,12 +263,34 @@ export class Scoro implements INodeType {
 
 	methods = {
 		listSearch: {
+			searchBills,
+			searchCalendarEvents,
+			searchClientProfiles,
 			searchContacts,
+			searchCustomFields,
+			searchExpenses,
+			searchInvoices,
+			searchOrders,
+			searchPdfTemplates,
+			searchProducts,
 			searchProjects,
+			searchPurchaseOrders,
+			searchQuotes,
+			searchRoles,
 			searchTasks,
 			searchUsers,
 		},
 		loadOptions: {
+			async getCustomFields(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+				const fields = await scoroApiRequestAllItems.call(this, '/customFields/list', {});
+				return fields.map((field) => {
+					const id = String(field.id ?? field.field_id ?? '');
+					return {
+						name: field.name ? `${field.name} (${id})` : id,
+						value: id,
+					};
+				});
+			},
 			async getUsers(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 				const users = await scoroApiRequestAllItems.call(this, '/users/list', {});
 				return users.map((user) => ({

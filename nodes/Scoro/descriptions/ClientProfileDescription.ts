@@ -1,6 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-import { listOptionsProperty, listProperties } from './common';
+import { listOptionsProperty, listProperties, locator } from './common';
 
 export const clientProfileOperations: INodeProperties[] = [
 	{
@@ -162,20 +162,21 @@ export const clientProfileFields: INodeProperties[] = [
 	},
 
 	// Update / Get / Delete: clientProfileId required
-	{
-		displayName: 'Client Profile ID',
-		name: 'clientProfileId',
-		type: 'string',
-		required: true,
-		default: '',
-		displayOptions: {
-			show: {
-				resource: ['clientProfile'],
-				operation: ['get', 'update', 'delete'],
+	locator(
+		'Client Profile',
+		'clientProfileId',
+		'searchClientProfiles',
+		'The client profile to operate on',
+		{
+			required: true,
+			displayOptions: {
+				show: {
+					resource: ['clientProfile'],
+					operation: ['get', 'update', 'delete'],
+				},
 			},
 		},
-		description: 'The ID of the client profile',
-	},
+	),
 	{
 		displayName: 'Update Fields',
 		name: 'updateFields',

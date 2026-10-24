@@ -147,20 +147,15 @@ export const calendarEventFields: INodeProperties[] = [
 	/* -------------------------------------------------------------------------- */
 	/*                        calendarEvent:get / delete / update                 */
 	/* -------------------------------------------------------------------------- */
-	{
-		displayName: 'Event ID',
-		name: 'eventId',
-		type: 'string',
+	locator('Calendar Event', 'eventId', 'searchCalendarEvents', 'The calendar event to operate on', {
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['calendarEvent'],
 				operation: ['get', 'delete', 'update'],
 			},
 		},
-		description: 'The unique ID of the calendar event',
-	},
+	}),
 
 	/* -------------------------------------------------------------------------- */
 	/*                            calendarEvent:create                            */

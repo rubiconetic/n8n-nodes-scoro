@@ -9,7 +9,22 @@ import type {
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 import { scoroApiRequest } from './GenericFunctions';
-import { splitList } from './helpers';
+import { splitList, toId } from './helpers';
+
+const VIEW_ENDPOINT_BY_MODULE: Record<string, string> = {
+	bills: 'bills',
+	calendar: 'calendar',
+	companies: 'contacts',
+	expenses: 'expenses',
+	invoices: 'invoices',
+	orders: 'orders',
+	persons: 'contacts',
+	prepayments: 'prepayments',
+	projects: 'projects',
+	purchaseOrders: 'purchaseOrders',
+	quotes: 'quotes',
+	tasks: 'tasks',
+};
 
 export class ScoroTrigger implements INodeType {
 	description: INodeTypeDescription = {
@@ -77,7 +92,7 @@ export class ScoroTrigger implements INodeType {
 				description: 'The Scoro module to listen to',
 			},
 			{
-				displayName: 'Event',
+				displayName: 'Trigger On',
 				name: 'action',
 				type: 'options',
 				required: true,
@@ -89,7 +104,6 @@ export class ScoroTrigger implements INodeType {
 					{ name: 'Record Modified', value: 'modify' },
 				],
 				default: 'any',
-				description: 'The event that starts the workflow',
 			},
 			{
 				displayName: 'Options',
@@ -108,6 +122,23 @@ export class ScoroTrigger implements INodeType {
 							'Comma-separated list limiting which users must perform the change: user IDs, "any", "me", or "group_ID" for a user group',
 					},
 					{
+						displayName: 'Bookmark ID',
+						name: 'bookmarkId',
+						type: 'string',
+						default: '',
+						placeholder: 'e.g. 111',
+						description:
+							'ID of the Scoro bookmark to filter by when Relation Type is set to Bookmark',
+					},
+					{
+						displayName: 'Fetch Full Record',
+						name: 'resolveData',
+						type: 'boolean',
+						default: false,
+						description:
+							'Whether to fetch the full record from Scoro on create and modify events and attach it under the "record" field',
+					},
+					{
 						displayName: 'Owners',
 						name: 'owners',
 						type: 'string',
@@ -119,11 +150,20 @@ export class ScoroTrigger implements INodeType {
 					{
 						displayName: 'Relation Type',
 						name: 'relationType',
-						type: 'string',
-						default: '',
-						placeholder: 'e.g. assigned_to',
+						type: 'options',
+						options: [
+							{ name: 'Assigned To (Tasks)', value: 'assigned_to' },
+							{ name: 'Bookmark', value: 'bookmark' },
+							{ name: 'Created By (Calendar, Projects, Tasks)', value: 'created_by' },
+							{ name: 'Managed By (Projects)', value: 'managed_by' },
+							{ name: 'Owned By (Contacts, Documents)', value: 'owned_by' },
+							{ name: 'Participated By (Calendar)', value: 'participated_by' },
+							{ name: 'Responsible User (Tasks)', value: 'responsible_user' },
+							{ name: 'With Member (Projects)', value: 'with_member' },
+						],
+						default: 'owned_by',
 						description:
-							'How the owners relate to the record, for example created_by, assigned_to, managed_by or owned_by. Allowed values depend on the module.',
+							'How the owners relate to the record. Allowed values depend on the module.',
 					},
 					{
 						displayName: 'Watched Fields',
@@ -173,6 +213,8 @@ export class ScoroTrigger implements INodeType {
 					url: webhookUrl,
 				};
 				if (options.relationType) request.relation_type = options.relationType;
+				const bookmarkId = toId(options.bookmarkId);
+				if (bookmarkId !== undefined) request.bookmark_id = bookmarkId;
 				const owners = splitList(options.owners);
 				if (owners.length > 0) request.owners = owners;
 				const actors = splitList(options.actors);
@@ -220,6 +262,25 @@ export class ScoroTrigger implements INodeType {
 		const body = this.getBodyData();
 		if (!body || Object.keys(body).length === 0) {
 			return { webhookResponse: 'OK' };
+		}
+		const options = this.getNodeParameter('options', {}) as IDataObject;
+		if (options.resolveData) {
+			const eventAction = String(
+				body.action ?? body.event ?? this.getNodeParameter('action', '') ?? '',
+			);
+			const entityId = toId(body.entityId ?? body.entity_id ?? body.id);
+			const moduleName = String(
+				body.module ?? body.entityType ?? this.getNodeParameter('module', '') ?? '',
+			);
+			const viewModule = VIEW_ENDPOINT_BY_MODULE[moduleName] || moduleName;
+			if (entityId !== undefined && viewModule && eventAction !== 'delete') {
+				const record = await scoroApiRequest.call(this, `/${viewModule}/view/${entityId}`, {
+					request: {},
+				});
+				return {
+					workflowData: [this.helpers.returnJsonArray({ ...body, record })],
+				};
+			}
 		}
 		return {
 			workflowData: [this.helpers.returnJsonArray(body)],

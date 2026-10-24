@@ -1,4 +1,14 @@
-import type { IDataObject } from 'n8n-workflow';
+import type { IDataObject, INode } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
+
+const FALLBACK_NODE: INode = {
+	id: 'scoro',
+	name: 'Scoro',
+	type: 'n8n-nodes-scoro.scoro',
+	typeVersion: 1,
+	position: [0, 0],
+	parameters: {},
+};
 
 /** Returns the plain value of a parameter that may be a resource locator object. */
 export function rlValue(value: unknown): string | number | undefined {
@@ -71,8 +81,9 @@ export function dateRange(from: unknown, to: unknown): IDataObject | undefined {
 export function buildCustomFields(ui: unknown): IDataObject[] | undefined {
 	const rows = ((ui as IDataObject | undefined)?.field as IDataObject[] | undefined) ?? [];
 	const fields = rows
-		.filter((row) => row.id !== undefined && row.id !== '')
-		.map((row) => ({ id: row.id, value: row.value }));
+		.map((row) => ({ id: rlValue(row.id), value: row.value }))
+		.filter((row) => row.id !== undefined && String(row.id).trim() !== '')
+		.map((row) => ({ id: String(row.id).trim(), value: row.value }));
 	return fields.length > 0 ? fields : undefined;
 }
 
@@ -100,28 +111,44 @@ export function buildCustomFieldsFilter(ui: unknown): IDataObject | undefined {
 	const rows = ((ui as IDataObject | undefined)?.field as IDataObject[] | undefined) ?? [];
 	const filter: IDataObject = {};
 	for (const row of rows) {
-		if (row.id !== undefined && row.id !== '' && row.value !== undefined && row.value !== '') {
-			filter[String(row.id).trim()] = row.value;
+		const id = rlValue(row.id);
+		if (
+			id !== undefined &&
+			String(id).trim() !== '' &&
+			row.value !== undefined &&
+			row.value !== ''
+		) {
+			filter[String(id).trim()] = row.value;
 		}
 	}
 	return Object.keys(filter).length > 0 ? filter : undefined;
 }
 
-/** Parses a JSON string or object for custom/raw filter criteria. */
-export function parseCustomFilters(input: unknown): IDataObject | undefined {
-	if (!input) return undefined;
-	if (typeof input === 'object' && !Array.isArray(input)) return compact(input as IDataObject);
+/** Parses a JSON string or object for custom/raw filter criteria. Throws on malformed JSON. */
+export function parseCustomFilters(
+	input: unknown,
+	node: INode = FALLBACK_NODE,
+): IDataObject | undefined {
+	if (input === undefined || input === null || input === '') return undefined;
+	if (typeof input === 'object') {
+		if (Array.isArray(input)) {
+			throw new NodeOperationError(node, 'Custom Filters (JSON) must be a JSON object');
+		}
+		return compact(input as IDataObject);
+	}
 	if (typeof input === 'string') {
 		const trimmed = input.trim();
 		if (!trimmed) return undefined;
+		let parsed: unknown;
 		try {
-			const parsed = JSON.parse(trimmed);
-			if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
-				return compact(parsed as IDataObject);
-			}
+			parsed = JSON.parse(trimmed);
 		} catch {
-			return undefined;
+			throw new NodeOperationError(node, 'Custom Filters (JSON) is not valid JSON');
 		}
+		if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+			throw new NodeOperationError(node, 'Custom Filters (JSON) must be a JSON object');
+		}
+		return compact(parsed as IDataObject);
 	}
-	return undefined;
+	throw new NodeOperationError(node, 'Custom Filters (JSON) must be a JSON object');
 }

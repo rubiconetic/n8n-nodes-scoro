@@ -60,26 +60,44 @@ test('buildCustomFieldsFilter converts fixedCollection into key-value map', () =
 	const multiple = buildCustomFieldsFilter({
 		field: [
 			{ id: ' c_tier ', value: 'VIP' },
-			{ id: 'c_score', value: '100' },
+			{ id: { __rl: true, mode: 'list', value: 'c_score' }, value: '100' },
 			{ id: '', value: 'ignored' },
+			{ id: { __rl: true, mode: 'list', value: '' }, value: 'ignored' },
 		],
 	});
 	assert.deepEqual(multiple, { c_tier: 'VIP', c_score: '100' });
 });
 
-test('parseCustomFilters parses JSON string and object', () => {
+test('parseCustomFilters parses JSON string and object and throws on invalid JSON', () => {
 	assert.equal(parseCustomFilters(undefined), undefined);
 	assert.equal(parseCustomFilters(''), undefined);
 	assert.equal(parseCustomFilters('   '), undefined);
-	assert.equal(parseCustomFilters('invalid json'), undefined);
-	assert.equal(parseCustomFilters('123'), undefined);
-	assert.equal(parseCustomFilters('[1, 2, 3]'), undefined);
+	assert.throws(() => parseCustomFilters('invalid json'), /not valid JSON/);
+	assert.throws(() => parseCustomFilters('123'), /must be a JSON object/);
+	assert.throws(() => parseCustomFilters('[1, 2, 3]'), /must be a JSON object/);
+	assert.throws(() => parseCustomFilters([1, 2, 3]), /must be a JSON object/);
 
 	const fromString = parseCustomFilters('{"tag_ids": [10, 20], "custom_code": "XYZ"}');
 	assert.deepEqual(fromString, { tag_ids: [10, 20], custom_code: 'XYZ' });
 
 	const fromObject = parseCustomFilters({ tag_ids: [10, 20] });
 	assert.deepEqual(fromObject, { tag_ids: [10, 20] });
+});
+
+test('Contact getAll rejects malformed customFiltersJson instead of silently ignoring it', async () => {
+	const ctx = fakeContext([ok([])], {
+		returnAll: false,
+		limit: 10,
+		options: {},
+		filters: {
+			customFiltersJson: '{bad json}',
+		},
+	});
+	await assert.rejects(
+		contactHandler.call(ctx, 'getAll', 0),
+		/Custom Filters \(JSON\) is not valid JSON/,
+	);
+	assert.equal(ctx.calls.length, 0);
 });
 
 test('composeFilter merges standard filters, custom fields, and custom JSON filters', () => {

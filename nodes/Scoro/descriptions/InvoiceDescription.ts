@@ -5,6 +5,7 @@ import {
 	customFieldsProperty,
 	customJsonFilterOption,
 	documentLinesProperty,
+	documentLinesUpdateNotice,
 	listOptionsProperty,
 	listProperties,
 	locator,
@@ -162,33 +163,29 @@ export const invoiceFields: INodeProperties[] = [
 	/* -------------------------------------------------------------------------- */
 	/*                        invoice:get / delete / update / getPdf              */
 	/* -------------------------------------------------------------------------- */
-	{
-		displayName: 'Invoice ID',
-		name: 'invoiceId',
-		type: 'string',
+	locator('Invoice', 'invoiceId', 'searchInvoices', 'The invoice to operate on', {
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['invoice'],
 				operation: ['get', 'delete', 'update', 'getPdf'],
 			},
 		},
-		description: 'The unique ID of the invoice',
-	},
-	{
-		displayName: 'Template ID',
-		name: 'templateId',
-		type: 'string',
-		default: '',
-		displayOptions: {
-			show: {
-				resource: ['invoice'],
-				operation: ['getPdf'],
+	}),
+	locator(
+		'Template',
+		'templateId',
+		'searchPdfTemplates',
+		'The PDF template to use (leave empty to use the default template)',
+		{
+			displayOptions: {
+				show: {
+					resource: ['invoice'],
+					operation: ['getPdf'],
+				},
 			},
 		},
-		description: 'The ID of the PDF template to use',
-	},
+	),
 
 	/* -------------------------------------------------------------------------- */
 	/*                               invoice:create                               */
@@ -202,6 +199,7 @@ export const invoiceFields: INodeProperties[] = [
 			},
 		},
 	}),
+	documentLinesUpdateNotice('invoice'),
 	documentLinesProperty('invoice'),
 	{
 		displayName: 'Additional Fields',

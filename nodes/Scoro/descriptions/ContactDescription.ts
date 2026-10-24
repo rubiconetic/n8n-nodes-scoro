@@ -265,6 +265,19 @@ export const contactFields: INodeProperties[] = [
 	/*                               contact:update                               */
 	/* -------------------------------------------------------------------------- */
 	{
+		displayName:
+			'When updating an existing address (City, Country, Street, or ZIP Code), also set Address ID in Update Fields. Without Address ID, Scoro creates a new address and may remove addresses omitted from the request.',
+		name: 'addressUpdateNotice',
+		type: 'notice',
+		default: '',
+		displayOptions: {
+			show: {
+				resource: ['contact'],
+				operation: ['update'],
+			},
+		},
+	},
+	{
 		displayName: 'Update Fields',
 		name: 'updateFields',
 		type: 'collection',

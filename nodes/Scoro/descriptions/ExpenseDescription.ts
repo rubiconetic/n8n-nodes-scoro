@@ -5,6 +5,7 @@ import {
 	customFieldsProperty,
 	customJsonFilterOption,
 	documentLinesProperty,
+	documentLinesUpdateNotice,
 	listOptionsProperty,
 	listProperties,
 	locator,
@@ -137,20 +138,15 @@ export const expenseFields: INodeProperties[] = [
 	/* -------------------------------------------------------------------------- */
 	/*                           expense:get / delete / update                    */
 	/* -------------------------------------------------------------------------- */
-	{
-		displayName: 'Expense ID',
-		name: 'expenseId',
-		type: 'string',
+	locator('Expense', 'expenseId', 'searchExpenses', 'The expense to operate on', {
 		required: true,
-		default: '',
 		displayOptions: {
 			show: {
 				resource: ['expense'],
 				operation: ['get', 'delete', 'update'],
 			},
 		},
-		description: 'The unique ID of the expense',
-	},
+	}),
 
 	/* -------------------------------------------------------------------------- */
 	/*                                expense:create                              */
@@ -164,6 +160,7 @@ export const expenseFields: INodeProperties[] = [
 			},
 		},
 	}),
+	documentLinesUpdateNotice('expense'),
 	documentLinesProperty('expense'),
 	{
 		displayName: 'Additional Fields',

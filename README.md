@@ -8,7 +8,7 @@ This is an n8n community node. It lets you use **[Scoro](https://www.scoro.com/)
 
 [Installation](#installation-) • [Operations](#operations-) • [Credentials](#credentials-) • [Compatibility](#compatibility-) • [Roadmap](#roadmap-) • [Resources](#resources-) • [Version history](#version-history-)
 
-> ℹ️ **Notice**: Version 1.1.0 provides full Scoro API v2 compatibility across all core operations (including Bill, Calendar Event, Client Profile, Comment, Contact, Expense, Invoice, Order, Project, Purchase Order, Quote, Role, Status, Task, Time Entry, Trigger, and User), plus a generic **API Request** resource for any custom or specialized endpoints.
+> ℹ️ **Notice**: Version 1.2.0 provides full Scoro API v2 compatibility across all core operations (including Bill, Calendar Event, Client Profile, Comment, Contact, Expense, Invoice, Order, Project, Purchase Order, Quote, Role, Status, Task, Time Entry, Trigger, and User), plus a generic **API Request** resource for any custom or specialized endpoints.
 
 ---
 
@@ -50,9 +50,10 @@ The **Scoro** node supports operations across 17 first-class resources, plus a g
 
 ### Operation Notes
 
+- **Resource Locators**: Records, products, PDF templates, and custom fields support **From List** (with live search) and **By ID** selection modes across operations.
 - **Generate PDF**: For Invoices, Orders, Purchase Orders, and Quotes, the **Generate PDF** operation returns Scoro's response containing the direct download URL (`pdf_link`), creation timestamp, and template ID.
 - **Line Items Replacement**: When updating a Bill, Expense, Invoice, Order, Purchase Order, or Quote with line items, Scoro replaces the entire line items collection. All lines to be kept must be included in the update request; any omitted lines will be deleted by Scoro.
-- **Custom Fields**: Create and Update operations support custom fields. Specify the field ID exactly as configured in Scoro, including the `c_` prefix (e.g. `c_account_tier`).
+- **Custom Fields**: Create, Update, and Get Many operations support custom fields. Select a custom field from the list or specify its ID with the `c_` prefix (e.g. `c_account_tier`).
 
 ### Get Many Options
 
@@ -83,11 +84,13 @@ The **API Request** resource enables calling any Scoro API v2 endpoint directly:
 The **Scoro Trigger** node starts a workflow when a record changes in Scoro. Activating the workflow subscribes a webhook in Scoro; deactivating it unsubscribes.
 
 - **Supported Modules**: Bill, Calendar Event, Company, Expense, Invoice, Order, Person, Prepayment, Project, Purchase Order, Quote, Task.
-- **Events**: Any Event, Record Created, Record Deleted, Record Modified.
+- **Trigger On**: Any Event, Record Created, Record Deleted, Record Modified.
 - **Options**:
   - **Acting Users**: Filter by user IDs, `any`, `me`, or `group_<ID>`.
+  - **Bookmark ID**: Filter events by a Scoro bookmark ID when **Relation Type** is set to `Bookmark`.
+  - **Fetch Full Record**: Automatically fetch the full record from Scoro on `create` and `modify` events and attach it under the `record` field.
   - **Owners**: Only watch records belonging to these users.
-  - **Relation Type**: Relationship of owner to record (`created_by`, `assigned_to`, `managed_by`, `owned_by`).
+  - **Relation Type**: Relationship of owner to record (`assigned_to`, `bookmark`, `created_by`, `managed_by`, `owned_by`, `participated_by`, `responsible_user`, `with_member`).
   - **Watched Fields**: Comma-separated field names to watch for modification events.
 
 ### Domain Verification
@@ -138,6 +141,7 @@ The Scoro API enforces per-second and daily request limits:
 Future planned additions to `n8n-nodes-scoro`:
 
 ### 🚀 Upcoming Features & Resources
+
 - [ ] **Product Catalog (`products`)**: Full CRUD for products and services (`/products/*`) to streamline line item generation and ERP/e-commerce syncs.
 - [ ] **Direct Binary PDF Downloads**: Toggle on `Generate PDF` operations (`Invoice`, `Quote`, `Order`, `Purchase Order`) to download files directly into n8n's `binary.data` without needing an extra HTTP Request node.
 - [ ] **File Attachments (`files`)**: Upload, download, and delete attachments on Tasks, Projects, Invoices, and Contacts (`/files/*`).
@@ -145,7 +149,7 @@ Future planned additions to `n8n-nodes-scoro`:
 - [ ] **Project Phases (`projectPhases`)**: Manage project milestones and phases for automated project template onboarding.
 - [ ] **Calendar Availability Check**: Dedicated free/busy query operation (`POST /calendar/check`) for booking and scheduling automations.
 
-> 💡 *Need one of these right now?* You can call any of these endpoints immediately using the built-in **API Request** resource. Feel free to open an issue or PR on [GitHub](https://github.com/rubiconetic/n8n-nodes-scoro) to vote for features!
+> 💡 _Need one of these right now?_ You can call any of these endpoints immediately using the built-in **API Request** resource. Feel free to open an issue or PR on [GitHub](https://github.com/rubiconetic/n8n-nodes-scoro) to vote for features!
 
 ---
 
@@ -179,6 +183,8 @@ npm run build:watch
 
 ## Version history 📜
 
+- **Version 1.2.0**: Added From List / By ID Resource Locators across all resources (Bills, Calendar Events, Client Profiles, Custom Fields, Expenses, Invoices, Orders, PDF Templates, Products, Purchase Orders, Quotes, Roles), promoted `Author` on `Comment: Create`, added `Fetch Full Record` and `Relation Type` dropdown on `Scoro Trigger`, added destructive update notices, fixed multi-page client search, and enforced strict JSON filter validation.
+- **Version 1.1.0**: Added Bill, Calendar Event, Client Profile, Expense, Order, Purchase Order, Role, Status, Trigger, and User resources, plus `Task: Set Done`, subtask support, and custom field/JSON filters on `Get Many`.
 - **Version 1.0.0**: Complete rewrite for Scoro API v2 compliance, modern `@n8n/node-cli` tooling, Contact, Project, Task, Time Entry, Invoice, Quote, API Request, Scoro Trigger, rate limit handling, and adaptive light/dark branding.
 - **Version 0.2.1**: Updated README to reflect the `Comment` resource update.
 - **Version 0.2.0**: Added the `Comment` resource with create, get many, update, and delete operations.

@@ -1,6 +1,22 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-type SearchMethod = 'searchContacts' | 'searchProjects' | 'searchTasks' | 'searchUsers';
+type SearchMethod =
+	| 'searchBills'
+	| 'searchCalendarEvents'
+	| 'searchClientProfiles'
+	| 'searchContacts'
+	| 'searchCustomFields'
+	| 'searchExpenses'
+	| 'searchInvoices'
+	| 'searchOrders'
+	| 'searchPdfTemplates'
+	| 'searchProducts'
+	| 'searchProjects'
+	| 'searchPurchaseOrders'
+	| 'searchQuotes'
+	| 'searchRoles'
+	| 'searchTasks'
+	| 'searchUsers';
 
 /** A "From List / By ID" picker. Read its value in execute with toId(). */
 export function locator(
@@ -43,6 +59,34 @@ export function locator(
 			},
 		],
 		...extra,
+	};
+}
+
+/** A "From List / By ID" picker for custom field string IDs (e.g. "c_account_tier"). */
+export function customFieldLocator(description: string): INodeProperties {
+	return {
+		displayName: 'Field',
+		name: 'id',
+		type: 'resourceLocator',
+		default: { mode: 'list', value: '' },
+		description,
+		modes: [
+			{
+				displayName: 'From List',
+				name: 'list',
+				type: 'list',
+				typeOptions: {
+					searchListMethod: 'searchCustomFields',
+					searchable: true,
+				},
+			},
+			{
+				displayName: 'By ID',
+				name: 'id',
+				type: 'string',
+				placeholder: 'e.g. c_myfield',
+			},
+		],
 	};
 }
 
@@ -104,14 +148,9 @@ export function customFieldsProperty(resource: string): INodeProperties {
 				name: 'field',
 				displayName: 'Field',
 				values: [
-					{
-						displayName: 'Field ID',
-						name: 'id',
-						type: 'string',
-						default: '',
-						placeholder: 'e.g. c_myfield',
-						description: 'The ID of the custom field as shown in Scoro, including the "c_" prefix',
-					},
+					customFieldLocator(
+						'The custom field as configured in Scoro, including the "c_" prefix when entering by ID',
+					),
 					{
 						displayName: 'Value',
 						name: 'value',
@@ -157,14 +196,9 @@ export const customFieldsFilterOption: INodeProperties = {
 			name: 'field',
 			displayName: 'Custom Field',
 			values: [
-				{
-					displayName: 'Field ID',
-					name: 'id',
-					type: 'string',
-					default: '',
-					placeholder: 'e.g. c_account_tier',
-					description: 'The ID of the custom field as shown in Scoro, including the "c_" prefix',
-				},
+				customFieldLocator(
+					'The custom field as configured in Scoro, including the "c_" prefix when entering by ID',
+				),
 				{
 					displayName: 'Value',
 					name: 'value',
@@ -184,7 +218,8 @@ export const customJsonFilterOption: INodeProperties = {
 	type: 'json',
 	default: '',
 	placeholder: '{\n  "tag_ids": [123, 456]\n}',
-	description: 'Additional Scoro filter parameters as JSON. Merged directly into the filter object.',
+	description:
+		'Additional Scoro filter parameters as JSON. Merged directly into the filter object.',
 };
 
 /** Options shared by Get Many operations. Read with applyListOptions(). */
@@ -225,7 +260,24 @@ export function listOptionsProperty(
 	};
 }
 
-/** Line items for invoices and quotes. Read with buildLines(). */
+/** Notice shown on document Update operations warning that setting Line Items replaces existing lines. */
+export function documentLinesUpdateNotice(resource: string): INodeProperties {
+	return {
+		displayName:
+			'Updating line items replaces all existing lines on this document. Include every line you want to keep (with its Line ID), or leave Line Items empty to keep existing lines unchanged.',
+		name: 'linesUpdateNotice',
+		type: 'notice',
+		default: '',
+		displayOptions: {
+			show: {
+				resource: [resource],
+				operation: ['update'],
+			},
+		},
+	};
+}
+
+/** Line items for financial documents. Read with buildLines(). */
 export function documentLinesProperty(resource: string): INodeProperties {
 	return {
 		displayName: 'Line Items',
@@ -236,6 +288,8 @@ export function documentLinesProperty(resource: string): INodeProperties {
 		},
 		placeholder: 'Add Line Item',
 		default: {},
+		description:
+			'Document line items. On Update, setting any line item replaces all existing lines on the document (leave empty to keep existing lines unchanged).',
 		displayOptions: {
 			show: {
 				resource: [resource],
@@ -276,12 +330,7 @@ export function documentLinesProperty(resource: string): INodeProperties {
 						default: '',
 						description: 'Set only when updating an existing line',
 					},
-					{
-						displayName: 'Product ID',
-						name: 'productId',
-						type: 'string',
-						default: '',
-					},
+					locator('Product', 'productId', 'searchProducts', 'The product or service for this line'),
 					{
 						displayName: 'Unit',
 						name: 'unit',

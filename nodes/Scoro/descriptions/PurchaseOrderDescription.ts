@@ -5,6 +5,7 @@ import {
 	customFieldsProperty,
 	customJsonFilterOption,
 	documentLinesProperty,
+	documentLinesUpdateNotice,
 	listOptionsProperty,
 	listProperties,
 	locator,
@@ -155,33 +156,35 @@ export const purchaseOrderFields: INodeProperties[] = [
 	/* -------------------------------------------------------------------------- */
 	/*                     purchaseOrder:get / delete / update / getPdf           */
 	/* -------------------------------------------------------------------------- */
-	{
-		displayName: 'Purchase Order ID',
-		name: 'purchaseOrderId',
-		type: 'string',
-		required: true,
-		default: '',
-		displayOptions: {
-			show: {
-				resource: ['purchaseOrder'],
-				operation: ['get', 'delete', 'update', 'getPdf'],
+	locator(
+		'Purchase Order',
+		'purchaseOrderId',
+		'searchPurchaseOrders',
+		'The purchase order to operate on',
+		{
+			required: true,
+			displayOptions: {
+				show: {
+					resource: ['purchaseOrder'],
+					operation: ['get', 'delete', 'update', 'getPdf'],
+				},
 			},
 		},
-		description: 'The unique ID of the purchase order',
-	},
-	{
-		displayName: 'Template ID',
-		name: 'templateId',
-		type: 'string',
-		default: '',
-		displayOptions: {
-			show: {
-				resource: ['purchaseOrder'],
-				operation: ['getPdf'],
+	),
+	locator(
+		'Template',
+		'templateId',
+		'searchPdfTemplates',
+		'The PDF template to use (leave empty to use the default template)',
+		{
+			displayOptions: {
+				show: {
+					resource: ['purchaseOrder'],
+					operation: ['getPdf'],
+				},
 			},
 		},
-		description: 'The ID of the PDF template to use',
-	},
+	),
 
 	/* -------------------------------------------------------------------------- */
 	/*                            purchaseOrder:create                            */
@@ -201,6 +204,7 @@ export const purchaseOrderFields: INodeProperties[] = [
 			},
 		},
 	),
+	documentLinesUpdateNotice('purchaseOrder'),
 	documentLinesProperty('purchaseOrder'),
 	{
 		displayName: 'Additional Fields',

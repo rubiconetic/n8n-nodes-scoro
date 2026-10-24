@@ -109,6 +109,15 @@ export const commentFields: INodeProperties[] = [
 		},
 		description: 'The ID of the object (task, project, contact, etc.) to attach the comment to',
 	},
+	locator('Author', 'userId', 'searchUsers', 'The Scoro user creating the comment', {
+		required: true,
+		displayOptions: {
+			show: {
+				resource: ['comment'],
+				operation: ['create'],
+			},
+		},
+	}),
 	{
 		displayName: 'Comment',
 		name: 'comment',
@@ -139,12 +148,13 @@ export const commentFields: INodeProperties[] = [
 			},
 		},
 		options: [
-			locator(
-				'Author',
-				'userId',
-				'searchUsers',
-				'The Scoro user creating the comment. Mandatory when using API key authentication.',
-			),
+			{
+				displayName: 'Parent Comment ID',
+				name: 'parentId',
+				type: 'string',
+				default: '',
+				description: 'ID of an existing comment when creating a reply',
+			},
 		],
 	},
 

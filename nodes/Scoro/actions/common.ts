@@ -1,13 +1,7 @@
 import type { IDataObject, IExecuteFunctions } from 'n8n-workflow';
 
 import { scoroApiRequestAllItems } from '../GenericFunctions';
-import {
-	buildCustomFieldsFilter,
-	compact,
-	parseCustomFilters,
-	toDateOnly,
-	toId,
-} from '../helpers';
+import { buildCustomFieldsFilter, compact, parseCustomFilters, toDateOnly, toId } from '../helpers';
 
 export type ResourceHandler = (
 	this: IExecuteFunctions,
